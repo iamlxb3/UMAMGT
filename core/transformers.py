@@ -50,6 +50,7 @@ def compute_bert_outputs(model_bert, embedding_output, attention_mask, model_nam
         extended_attention_mask = get_extended_attention_mask(attention_mask, input_shape, model_bert.dtype)
     else:
         extended_attention_mask = None
+
     encoder_outputs = model_bert.encoder(embedding_output,
                                          attention_mask=extended_attention_mask,
                                          output_hidden_states=True)

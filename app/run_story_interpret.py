@@ -25,6 +25,8 @@ def args_parse():
     parser.add_argument('--ig_n_steps', type=int, default=50)
     parser.add_argument('--vis_record_save_path', type=str)
     parser.add_argument('--max_text_length', type=int)
+    parser.add_argument('--model_name', type=str, default='bert')
+
     args = parser.parse_args()
     return args
 
@@ -37,11 +39,13 @@ def main():
     ig_n_steps = args.ig_n_steps
     vis_record_save_path = args.vis_record_save_path
     max_text_length = args.max_text_length
+    model_name = args.model_name
+
     if not debug_N:
         debug_N = None
 
     if not vis_record_save_path:
-        vis_record_save_path = f'../result/vis_record_{ntpath.basename(model_dir)}.pkl'
+        vis_record_save_path = f'../result/vis_record_{ntpath.basename(model_dir)}_text_len_{max_text_length}.pkl'
     print(f"Vis record save path: {vis_record_save_path}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,7 +57,7 @@ def main():
     # roberta = RobertaForSequenceClassification.from_pretrained('roberta-base').to(device)
     # tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
-    roberta = BertModelWrapper(roberta).to(device)
+    roberta = BertModelWrapper(roberta, model_name=model_name).to(device)
 
     interpreter = StoryInterpreter(roberta,
                                    tokenizer,

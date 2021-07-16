@@ -14,7 +14,7 @@ def add_attributions_to_visualizer(attributions, tokens, pred, pred_ind, label, 
     attributions = attributions[1:-1][:len(tokens)]
     attributions = attributions.sum(dim=1)
     attributions = attributions / torch.norm(attributions)
-    attributions = attributions.detach().cpu().numpy()
+    attributions = attributions.numpy()
 
     # storing couple samples in an array for visualization purposes
     vis_data_records.append(visualization.VisualizationDataRecord(
@@ -64,12 +64,14 @@ class StoryInterpreter:
                                    encoded_inputs['attention_mask'],
                                    encoded_inputs=encoded_inputs)
         predict_labels = torch.argmax(predict_probs, dim=1).detach().cpu().tolist()
+        predict_probs = predict_probs.detach().cpu()
         return predict_probs, predict_labels, input_embedding, all_pad_embedding
 
     def save_vis_records(self):
         if self.vis_record_save_path:
             pickle.dump(self.vis_data_records_ig, open(self.vis_record_save_path, 'wb'))
-            print(f"Save vis record to {os.path.abspath(self.vis_record_save_path)}, size: {len(self.vis_data_records_ig)}")
+            print(
+                f"Save vis record to {os.path.abspath(self.vis_record_save_path)}, size: {len(self.vis_data_records_ig)}")
         else:
             print(f"Warning!!!!!!! Vis recorad not saved! Path not provided.")
 
@@ -91,6 +93,10 @@ class StoryInterpreter:
         print(f"Predict prob: {predict_probs}")
         print(f"Predict label: {predict_labels}")
         print(f"Delta: {delta}")
+        del input_embedding
+        del all_pad_embedding
+        attributions_ig = attributions_ig.detach().cpu()
+        delta = delta.detach().cpu()
 
         for i, input_id in enumerate(encoded_inputs['input_ids']):
             tokens = self.tokenizer.convert_ids_to_tokens(input_id, skip_special_tokens=True)
@@ -103,6 +109,7 @@ class StoryInterpreter:
                     predict_prob = predict_probs[i][pred_ind]
                     add_attributions_to_visualizer(attributions_ig[i].unsqueeze(0), tokens, predict_prob, pred_ind,
                                                    actual_ind, delta[i], self.vis_data_records_ig)
+        torch.cuda.empty_cache()
 
     def interpret_sentence(self,
                            sentences,
