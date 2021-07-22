@@ -40,12 +40,13 @@ def main():
     vis_record_save_path = args.vis_record_save_path
     max_text_length = args.max_text_length
     model_name = args.model_name
+    interpret_all_labels = True
 
     if not debug_N:
         debug_N = None
 
     if not vis_record_save_path:
-        vis_record_save_path = f'../result/vis_record_{ntpath.basename(model_dir)}_text_len_{max_text_length}.pkl'
+        vis_record_save_path = f'../result/vis_record_{ntpath.basename(model_dir)}_text_len_{max_text_length}_{interpret_all_labels}.pkl'
     print(f"Vis record save path: {vis_record_save_path}")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -64,7 +65,8 @@ def main():
                                    device,
                                    n_steps=ig_n_steps,
                                    vis_record_save_path=vis_record_save_path,
-                                   correct_label_only=True
+                                   correct_label_only=True,
+                                   interpret_all_labels=interpret_all_labels
                                    )
 
     # sentences = ['测试1。阿斯顿撒大', '测试2，阿斯顿撒大', '测试3，阿斯顿撒大']

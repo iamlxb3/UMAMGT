@@ -2,6 +2,7 @@ import os
 import ipdb
 import torch
 import pickle
+import numpy as np
 
 from tqdm import tqdm
 from captum.attr import IntegratedGradients
@@ -9,23 +10,13 @@ from captum.attr import visualization
 from captum.attr import LayerIntegratedGradients, TokenReferenceBase
 
 
-def add_attributions_to_visualizer(attributions, tokens, pred, pred_ind, label, delta, vis_data_records):
+def compute_attributions(attributions, tokens):
     attributions = attributions.squeeze(0)
     attributions = attributions[1:-1][:len(tokens)]
     attributions = attributions.sum(dim=1)
     attributions = attributions / torch.norm(attributions)
     attributions = attributions.numpy()
-
-    # storing couple samples in an array for visualization purposes
-    vis_data_records.append(visualization.VisualizationDataRecord(
-        attributions,
-        pred,
-        pred_ind,
-        label,
-        "label",
-        attributions.sum(),
-        tokens[:len(attributions)],
-        delta))
+    return attributions
 
 
 class StoryInterpreter:
@@ -35,7 +26,8 @@ class StoryInterpreter:
                  device,
                  n_steps=50,
                  vis_record_save_path='',
-                 correct_label_only=True
+                 correct_label_only=True,
+                 interpret_all_labels=True
                  ):
         self.model = model
         self.device = device
@@ -47,6 +39,7 @@ class StoryInterpreter:
         self.n_steps = n_steps
         self.vis_record_save_path = vis_record_save_path
         self.correct_label_only = correct_label_only
+        self.interpret_all_labels = interpret_all_labels
 
     def interpret_dataloder(self,
                             dataloder):
@@ -78,25 +71,44 @@ class StoryInterpreter:
     def interpret_encoded_inputs(self,
                                  encoded_inputs,
                                  labels):
+        self.model.zero_grad()
         predict_probs, predict_labels, input_embedding, all_pad_embedding = \
             self._predict_batch_token_input(encoded_inputs)
 
         # compute attributions and approximation delta using integrated gradients
         # attributions_ig shape: batch x max_seq_len x 768
-        print(f"Start computing attribution...")
-        attributions_ig, delta = self.ig.attribute(inputs=input_embedding,
-                                                   baselines=all_pad_embedding,
-                                                   target=[1 for _ in predict_labels],
-                                                   n_steps=self.n_steps,
-                                                   return_convergence_delta=True)
-        print("-" * 78)
-        print(f"Predict prob: {predict_probs}")
-        print(f"Predict label: {predict_labels}")
-        print(f"Delta: {delta}")
+        # print(f"Start computing attribution...")
+        all_1_labels = torch.tensor([1 for _ in predict_labels]).to(self.device)
+        # all_0_labels = torch.tensor([0 for _ in predict_labels]).to(self.device)
+
+        label1_attributions_ig, label1_delta = self.ig.attribute(inputs=input_embedding,
+                                                                 baselines=all_pad_embedding,
+                                                                 target=all_1_labels,
+                                                                 n_steps=self.n_steps,
+                                                                 return_convergence_delta=True)
+        label1_attributions_ig = label1_attributions_ig.detach().cpu()
+        label1_delta = label1_delta.detach().cpu()
         del input_embedding
         del all_pad_embedding
-        attributions_ig = attributions_ig.detach().cpu()
-        delta = delta.detach().cpu()
+
+        # if self.interpret_all_labels:
+        #     self.model.zero_grad()
+        #     predict_probs, predict_labels, input_embedding, all_pad_embedding = \
+        #         self._predict_batch_token_input(encoded_inputs)
+        #     label0_attributions_ig, label0_delta = self.ig.attribute(inputs=input_embedding,
+        #                                                              baselines=all_pad_embedding,
+        #                                                              target=all_0_labels,
+        #                                                              n_steps=self.n_steps,
+        #                                                              return_convergence_delta=True)
+        #     label0_attributions_ig = label0_attributions_ig.detach().cpu()
+        #     label0_delta = label0_delta.detach().cpu()
+        #     del input_embedding
+        #     del all_pad_embedding
+
+        # print("-" * 78)
+        # print(f"Predict prob: {predict_probs}")
+        # print(f"Predict label: {predict_labels}")
+        # print(f"Delta: {delta}")
 
         for i, input_id in enumerate(encoded_inputs['input_ids']):
             tokens = self.tokenizer.convert_ids_to_tokens(input_id, skip_special_tokens=True)
@@ -107,8 +119,30 @@ class StoryInterpreter:
             if self.correct_label_only:
                 if pred_ind == actual_ind:
                     predict_prob = predict_probs[i][pred_ind]
-                    add_attributions_to_visualizer(attributions_ig[i].unsqueeze(0), tokens, predict_prob, pred_ind,
-                                                   actual_ind, delta[i], self.vis_data_records_ig)
+
+                    label1_attributions = compute_attributions(label1_attributions_ig[i].unsqueeze(0), tokens)
+
+                    # if self.interpret_all_labels:
+                    #     label0_attributions = compute_attributions(label0_attributions_ig[i].unsqueeze(0), tokens)
+                    #     ipdb.set_trace()
+                    #     label0_attributions = label0_attributions * -1
+                    #     attributions = (label1_attributions + label0_attributions) / 2
+                    #     delta = label1_delta
+
+                    attributions = label1_attributions
+                    delta = label1_delta
+
+                    # storing couple samples in an array for visualization purposes
+                    self.vis_data_records_ig.append(visualization.VisualizationDataRecord(
+                        attributions,
+                        predict_prob,
+                        pred_ind,
+                        actual_ind,
+                        "label",
+                        attributions.sum(),
+                        tokens[:len(attributions)],
+                        delta))
+
         torch.cuda.empty_cache()
 
     def interpret_sentence(self,

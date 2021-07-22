@@ -1,4 +1,7 @@
 老的transformer版本: transformers-3.3.0
+新的transformer版本: transformers-4.8.2
+
+标签
 
 tensorboard --logdir . --bind_all
 
@@ -12,8 +15,11 @@ python3.6 train_cn_roberta.py --epoch 20 \
 ```
 
 可解释性分析:
-```python
-python3.6 train_cn_roberta.py --epoch 20 \
-                              --per_device_train_batch_size 32 \
-                              --gradient_accumulation_steps 4
+```bash
+args:
+debug_N
+batch_size
+max_text_length
+
+bash run_story_interpret.sh 0 8 512
 ```

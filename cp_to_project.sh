@@ -1,0 +1,1 @@
+cp -r /root/story_turing_test/ /project/pujiashu/story_turing_test/
