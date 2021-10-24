@@ -25,7 +25,6 @@ set -e
 
 model_dir='../model_ckpts/cn-roberta-story-turning-train_22789-seq_105_5billion_shuffle_unique_no_reverse'
 data_dir='../data/5billion_shuffle_unique_no_reverse'
-
 model_name='bert' # 这里如果要用自己的模型，比如roberta，需要改一下
 
 python3.6 run_story_interpret.py --debug_N $debug_N \

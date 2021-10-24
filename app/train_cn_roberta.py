@@ -45,7 +45,7 @@ def args_parse():
     parser.add_argument('--model_max_length', type=int, default=512)
     parser.add_argument('--per_device_train_batch_size', type=int, default=32)
     parser.add_argument('--gradient_accumulation_steps', type=int, default=1)
-
+    parser.add_argument('--re_init_weights', type=int, default=0)
     args = parser.parse_args()
     return args
 
@@ -61,6 +61,7 @@ def main():
     per_device_train_batch_size = args.per_device_train_batch_size
     gradient_accumulation_steps = args.gradient_accumulation_steps
     model_save_dir = args.model_save_dir
+    re_init_weights = args.re_init_weights
 
     seed_everything(1)
 
@@ -82,7 +83,12 @@ def main():
     # (1.) init model
     model = AutoModelForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext", num_labels=2)
     print(model)
+    ipdb.set_trace()
+    # BertEncoder.layer(ModuleList) -> BertLayer.attention (crossattention) -> BertAttention.self -> BertSelfAttention
 
+    if re_init_weights:
+        model.init_weights()
+        print("Re init weights for model done!")
     # TODO, compute warmup steps
 
     # (2.) train model

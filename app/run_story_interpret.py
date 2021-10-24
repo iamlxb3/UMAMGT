@@ -26,7 +26,6 @@ def args_parse():
     parser.add_argument('--vis_record_save_path', type=str)
     parser.add_argument('--max_text_length', type=int)
     parser.add_argument('--model_name', type=str, default='bert')
-
     args = parser.parse_args()
     return args
 
@@ -40,6 +39,8 @@ def main():
     vis_record_save_path = args.vis_record_save_path
     max_text_length = args.max_text_length
     model_name = args.model_name
+    re_init_weights = args.re_init_weights
+
     interpret_all_labels = True
 
     if not debug_N:
@@ -57,7 +58,6 @@ def main():
 
     # roberta = RobertaForSequenceClassification.from_pretrained('roberta-base').to(device)
     # tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
-
     roberta = BertModelWrapper(roberta, model_name=model_name).to(device)
 
     interpreter = StoryInterpreter(roberta,

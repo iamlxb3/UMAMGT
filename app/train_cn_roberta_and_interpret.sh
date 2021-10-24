@@ -1,4 +1,4 @@
-bash train_cn_roberta_and_interpret.sh
+# bash train_cn_roberta_and_interpret.sh
 
 set -e
 

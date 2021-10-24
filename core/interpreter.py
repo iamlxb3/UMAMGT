@@ -111,7 +111,7 @@ class StoryInterpreter:
         # print(f"Delta: {delta}")
 
         for i, input_id in enumerate(encoded_inputs['input_ids']):
-            tokens = self.tokenizer.convert_ids_to_tokens(input_id, skip_special_tokens=True)
+            tokens = self.tokenizer.convert_ids_to_tokens(input_id, skip_special_tokens=False)
             tokens = [x.replace('Ġ', '') for x in tokens]
             pred_ind = predict_labels[i]
             actual_ind = int(labels[i])
@@ -131,6 +131,8 @@ class StoryInterpreter:
 
                     attributions = label1_attributions
                     delta = label1_delta
+
+                    # attributions: seq_len x 1
 
                     # storing couple samples in an array for visualization purposes
                     self.vis_data_records_ig.append(visualization.VisualizationDataRecord(
