@@ -1,12 +1,14 @@
 import os
 import ipdb
+import numpy as np
 from sklearn.model_selection import train_test_split
 from .datasets import StoryTuringTestData
 
 
 class StoryTuringTest:
-    def __init__(self, tokenizer):
+    def __init__(self, tokenizer, dataset_name):
         self.tokenizer = tokenizer
+        self.dataset_name = dataset_name
 
     def _read_text_label(self, text_file, label_file):
         texts = []
@@ -26,6 +28,29 @@ class StoryTuringTest:
 
         assert len(texts) == len(labels)
         return texts, labels
+
+    def read_cn_novel_whole_data(self, data_dir):
+        test_data_path = os.path.join(data_dir, 'valid.tgt')
+        test_label_path = os.path.join(data_dir, 'valid.label')
+        train_data_path = os.path.join(data_dir, 'train.tgt')
+        train_label_path = os.path.join(data_dir, 'train.label')
+
+        train_texts, train_labels = self._read_text_label(train_data_path, train_label_path)
+        test_texts, test_labels = self._read_text_label(test_data_path, test_label_path)
+
+        whole_texts = train_texts + test_texts
+        whole_labels = train_labels + test_labels
+
+        return np.array(whole_texts), np.array(whole_labels)
+
+    def create_dataset(self, texts, labels, max_length=512):
+
+        text_encodings = self.tokenizer(list(texts), truncation=True, padding=True, max_length=max_length)
+
+        # create dataset
+        dataset = StoryTuringTestData(text_encodings, labels)
+
+        return dataset
 
     def read_test_data(self, data_dir, debug_N):
         test_data_path = os.path.join(data_dir, 'valid.tgt')

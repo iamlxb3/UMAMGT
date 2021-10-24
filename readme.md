@@ -1,7 +1,9 @@
 老的transformer版本: transformers-3.3.0
 新的transformer版本: transformers-4.8.2
-
+torch==1.6.0
 标签
+
+label1: 是人写的 label0: 是机器写的
 
 tensorboard --logdir . --bind_all
 
