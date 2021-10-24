@@ -2,6 +2,7 @@ import os
 import sys
 import ipdb
 import random
+import shutil
 import ntpath
 import numpy as np
 import argparse
@@ -101,6 +102,9 @@ def main():
     else:
         raise NotImplementedError
 
+    if re_init_weights:
+        classifier_name += '_no_pretrain'
+
     semantic_change_str = '_'.join(semantic_change)
     semantic_modifier = SemanticModifier(semantic_change, char_freq=char_freq)
 
@@ -126,6 +130,10 @@ def main():
 
     for char_freq_range in char_freq_ranges:
         for repeat_i in range(repeat):
+
+            # config tmp output dir
+            tmp_ckpts_dir = f'../model_ckpts/tmp/{dataset_name}_{classifier_name}_' \
+                            f'{char_freq_range}_{semantic_change_str}_{repeat_i}'
 
             repeat_seed = SEED_OFFSET + repeat_i
 
@@ -173,8 +181,7 @@ def main():
             # (2.) train model
             # reference: https://huggingface.co/transformers/v3.0.2/main_classes/trainer.html
             training_args = TrainingArguments(
-                output_dir=f'../model_ckpts/tmp/{dataset_name}_{classifier_name}_'
-                           f'{char_freq_range}_{semantic_change_str}_{repeat_i}',
+                output_dir=tmp_ckpts_dir,
                 # output directory
                 num_train_epochs=train_config['epoch'],  # total number of training epochs
                 per_device_train_batch_size=SYSTEM_CONFIG['per_device_train_batch_size'],
@@ -216,6 +223,10 @@ def main():
                                                train_dataset.size,
                                                val_dataset.size,
                                                test_dataset.size)
+
+            # remove temp save dir
+            shutil.rmtree(tmp_ckpts_dir)
+            print(f"Remove temp dir {tmp_ckpts_dir} SUCCESS!!!!")
 
     # save path
     save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}.csv')

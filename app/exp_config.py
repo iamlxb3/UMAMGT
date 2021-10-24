@@ -10,7 +10,7 @@ SYSTEM_CONFIG = {'per_device_train_batch_size': 32,
 # the frequency of evaluating on the val set for roberta
 TRAIN_CONFIG = {'epoch': 5,
                 'logging_steps': 20,
-                'eval_steps': 500}
+                'eval_steps': 100}
 
 TRAIN_DEBUG_CONFIG = {'epoch': 1,
                       'logging_steps': 1,
