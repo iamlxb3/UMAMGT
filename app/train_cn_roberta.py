@@ -117,6 +117,8 @@ def main():
     if is_debug:
         whole_texts, whole_labels = whole_texts[:200], whole_labels[:200]
 
+    origin_all_indices = np.arange(0, len(whole_texts))
+
     # (1.) init experiment recorder
     exp_recorder = ExpRecorder()
 
@@ -131,20 +133,21 @@ def main():
             seed_everything(repeat_seed)
 
             # (1.) shuffle data and split train/val/test
-            all_indices = np.arange(0, len(whole_texts))
-            shuffle_indices = all_indices.copy()
+            shuffle_indices = origin_all_indices.copy()
 
             random.shuffle(shuffle_indices)
+            shuffle_whole_texts = whole_texts.copy()[shuffle_indices]
+            shuffle_whole_labels = whole_labels.copy()[shuffle_indices]
 
             test_size = int(TEST_PERCENT * len(whole_texts))
             val_size = int(VAL_PERCENT * len(whole_texts))
 
-            train_texts = whole_texts[:len(whole_texts) - test_size - val_size]
-            train_labels = whole_labels[:len(whole_texts) - test_size - val_size]
-            val_texts = whole_texts[len(whole_texts) - test_size - val_size:len(whole_texts) - test_size]
-            val_labels = whole_labels[len(whole_texts) - test_size - val_size:len(whole_texts) - test_size]
-            test_texts = whole_texts[len(whole_texts) - test_size:]
-            test_labels = whole_labels[len(whole_texts) - test_size:]
+            train_texts = shuffle_whole_texts[:len(whole_texts) - test_size - val_size]
+            train_labels = shuffle_whole_labels[:len(whole_texts) - test_size - val_size]
+            val_texts = shuffle_whole_texts[len(whole_texts) - test_size - val_size:len(whole_texts) - test_size]
+            val_labels = shuffle_whole_labels[len(whole_texts) - test_size - val_size:len(whole_texts) - test_size]
+            test_texts = shuffle_whole_texts[len(whole_texts) - test_size:]
+            test_labels = shuffle_whole_labels[len(whole_texts) - test_size:]
 
             # apply semantic change
             train_texts = semantic_modifier.change_texts(train_texts, char_freq_range)
@@ -156,6 +159,8 @@ def main():
             val_dataset = story_turing_test.create_dataset(val_texts, val_labels, max_length=MAX_SEQ_LENGTH)
             test_dataset = story_turing_test.create_dataset(test_texts, test_labels, max_length=MAX_SEQ_LENGTH)
             print(f"Train size: {train_dataset.size}, val size: {val_dataset.size}, test size: {test_dataset.size}")
+            print(
+                f"Train label: {train_dataset.label}, val label: {val_dataset.label}, test label: {test_dataset.label}")
 
             # (1.) init model
             model = AutoModelForSequenceClassification.from_pretrained(hugginface_model_id, num_labels=2)
@@ -168,7 +173,9 @@ def main():
             # (2.) train model
             # reference: https://huggingface.co/transformers/v3.0.2/main_classes/trainer.html
             training_args = TrainingArguments(
-                output_dir='../result',  # output directory
+                output_dir=f'../model_ckpts/tmp/{dataset_name}_{classifier_name}_'
+                           f'{char_freq_range}_{semantic_change_str}_{repeat_i}',
+                # output directory
                 num_train_epochs=train_config['epoch'],  # total number of training epochs
                 per_device_train_batch_size=SYSTEM_CONFIG['per_device_train_batch_size'],
                 # batch size per device during training

@@ -1,4 +1,4 @@
-# bash train_on_cn_novel_reorder_freq_low2high.sh '256 512 1024 0' 0 0 3
+# bash train_on_cn_novel_reorder_shuffle+deduplicate.sh '256 512 1024 0' 1 0 3
 
 char_freq_ranges=${1:-0}
 is_change_apply_to_test=${2:-1}
@@ -10,7 +10,7 @@ save_dir=../result/
 dataset_name=cn_novel_5billion
 classifier_name=cn_roberta
 char_freq_txt_path=../data/sort_char.txt
-semantic_change='reorder_freq_low2high'
+semantic_change='reorder_shuffle char_deduplicate'
 
 python3.6 train_cn_roberta.py --classifier_name $classifier_name \
                               --dataset_name $dataset_name \
