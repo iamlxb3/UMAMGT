@@ -1,0 +1,9 @@
+\begin{tabular}{@{}c|ccccc@{}}
+\toprule
+ & dedup. & high2low & low2high & shuf. & shuf. dedup. \\ \midrule
+origin & -14.22\%‡ & -14.22\%‡ & 1.11\%‡ & -20.21\%‡ & -20.21\%‡ \\
+dedup. & - & -14.22\%† & 1.11\%† & -20.21\%† & -20.21\%† \\
+high2low & - & - & 1.11\%† & -20.21\%† & -20.21\%† \\
+low2high & - & - & - & -20.21\%† & -20.21\%† \\
+shuf. & - & - & - & - & -20.21\%† \\ \bottomrule
+\end{tabular}

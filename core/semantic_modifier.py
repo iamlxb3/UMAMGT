@@ -9,6 +9,24 @@ class SemanticModifier:
         self.char_freq = char_freq
         self.max_freq = max(self.char_freq.values())
 
+    def rm_chars_out_freq(self, texts, char_freq_range):
+        processed_texts = []
+        for text in texts:
+            split_text = text.split(' ')
+            split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+            split_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
+            processed_texts.append(' '.join(split_text))
+        return processed_texts
+
+    def rm_chars_in_freq(self, texts, char_freq_range):
+        processed_texts = []
+        for text in texts:
+            split_text = text.split(' ')
+            split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+            split_text = [x if freq > char_freq_range else '[MASK]' for (x, freq) in split_text_order]
+            processed_texts.append(' '.join(split_text))
+        return processed_texts
+
     def change_texts(self, texts, char_freq_range):
         processed_texts = []
 

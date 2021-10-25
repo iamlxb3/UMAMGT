@@ -49,9 +49,11 @@ def args_parse():
     parser.add_argument('--classifier_name', type=str, required=True, choices=['cn_roberta'])
     parser.add_argument('--dataset_name', type=str, required=True, choices=['cn_novel_5billion'])
     parser.add_argument('--is_debug', type=int, default=0)
+    parser.add_argument('--char_freq_ranges', nargs='+', type=int, default=[0])
     parser.add_argument('--repeat', type=int, default=1, help='repeat with random seads')
-    parser.add_argument('--is_change_apply_to_test', type=int, default=0)
-    parser.add_argument('--re_init_weights', type=int, default=0)
+    parser.add_argument('--semantic_change',
+                        type=str,
+                        required=True)
     args = parser.parse_args()
     return args
 
@@ -65,10 +67,9 @@ def main():
     repeat = args.repeat
     is_debug = args.is_debug
     is_debug = True if is_debug else False
-    is_change_apply_to_test = args.is_change_apply_to_test
-    is_change_apply_to_test = True if is_change_apply_to_test else is_change_apply_to_test
+    is_change_apply_to_test = True
+    re_init_weights = False
     data_dir = args.data_dir
-    re_init_weights = args.re_init_weights
     semantic_change = args.semantic_change
     char_freq_ranges = args.char_freq_ranges
     save_dir = args.save_dir
@@ -95,7 +96,7 @@ def main():
     if re_init_weights:
         classifier_name += '_no_pretrain'
 
-    semantic_change_str = '_'.join(semantic_change)
+    semantic_change_str = semantic_change
     semantic_modifier = SemanticModifier(semantic_change, char_freq=char_freq)
 
     tokenizer = AutoTokenizer.from_pretrained(hugginface_model_id)
@@ -121,8 +122,7 @@ def main():
         for repeat_i in range(repeat):
 
             # config tmp output dir
-            tmp_ckpts_dir = f'../model_ckpts/tmp/{dataset_name}_{classifier_name}_' \
-                            f'{char_freq_range}_{semantic_change_str}_{repeat_i}'
+            tmp_ckpts_dir = f'../model_ckpts/tmp/freq_gap_{semantic_change_str}_{repeat_i}'
 
             repeat_seed = SEED_OFFSET + repeat_i
 
@@ -147,10 +147,17 @@ def main():
             test_labels = shuffle_whole_labels[len(whole_texts) - test_size:]
 
             # apply semantic change
-            train_texts = semantic_modifier.change_texts(train_texts, char_freq_range)
-            val_texts = semantic_modifier.change_texts(val_texts, char_freq_range)
-            if is_change_apply_to_test:
-                test_texts = semantic_modifier.change_texts(test_texts, char_freq_range)
+
+            if semantic_change_str == 'rm_chars_in_freq':
+                train_texts = semantic_modifier.rm_chars_in_freq(train_texts, char_freq_range)
+                val_texts = semantic_modifier.rm_chars_in_freq(val_texts, char_freq_range)
+                test_texts = semantic_modifier.rm_chars_in_freq(test_texts, char_freq_range)
+            elif semantic_change_str == 'rm_chars_out_freq':
+                train_texts = semantic_modifier.rm_chars_out_freq(train_texts, char_freq_range)
+                val_texts = semantic_modifier.rm_chars_out_freq(val_texts, char_freq_range)
+                test_texts = semantic_modifier.rm_chars_out_freq(test_texts, char_freq_range)
+            else:
+                raise NotImplementedError
 
             train_dataset = story_turing_test.create_dataset(train_texts, train_labels, max_length=MAX_SEQ_LENGTH)
             val_dataset = story_turing_test.create_dataset(val_texts, val_labels, max_length=MAX_SEQ_LENGTH)
@@ -218,10 +225,7 @@ def main():
             print(f"Remove temp dir {tmp_ckpts_dir} SUCCESS!!!!")
 
     # save path
-    if is_change_apply_to_test:
-        save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}_test_intact.csv')
-    else:
-        save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}.csv')
+    save_path = os.path.join(save_dir, f'freq_gap_{dataset_name}_{classifier_name}_{semantic_change_str}.csv')
     exp_recorder.save_to_disk(save_path)
 
     # # Save model
