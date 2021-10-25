@@ -50,16 +50,6 @@ def args_parse():
     parser.add_argument('--dataset_name', type=str, required=True, choices=['cn_novel_5billion'])
     parser.add_argument('--is_debug', type=int, default=0)
     parser.add_argument('--repeat', type=int, default=1, help='repeat with random seads')
-    parser.add_argument('--char_freq_ranges', nargs='+', type=int, default=[0])
-    parser.add_argument('--semantic_change',
-                        nargs='+',
-                        type=str,
-                        choices=['reorder_shuffle',
-                                 'reorder_freq_high2low',
-                                 'reorder_freq_low2high',
-                                 'char_deduplicate',
-                                 'None'],
-                        required=True)
     parser.add_argument('--is_change_apply_to_test', type=int, default=0)
     parser.add_argument('--re_init_weights', type=int, default=0)
     args = parser.parse_args()
