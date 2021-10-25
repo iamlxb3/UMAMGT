@@ -229,9 +229,9 @@ def main():
 
     # save path
     if is_change_apply_to_test:
-        save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}_test_intact.csv')
-    else:
         save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}.csv')
+    else:
+        save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}_test_intact.csv')
     exp_recorder.save_to_disk(save_path)
 
     # # Save model
