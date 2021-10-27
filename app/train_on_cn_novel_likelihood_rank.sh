@@ -1,4 +1,4 @@
-# bash train_on_cn_novel_likelihood_rank.sh '256' 1 1 0 1
+# bash train_on_cn_novel_likelihood_rank.sh '0' 1 1 0 1
 
 char_freq_ranges=${1:-0}
 is_change_apply_to_test=${2:-1}

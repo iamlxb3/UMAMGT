@@ -10,6 +10,17 @@ class StoryTuringTest:
         self.tokenizer = tokenizer
         self.dataset_name = dataset_name
 
+    def _read_text_rank(self, file_path):
+        texts = []
+
+        # read texts
+        with open(file_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                texts.append(line)
+
+        return texts
+
     def _read_text_label(self, text_file, label_file):
         texts = []
         labels = []
@@ -30,19 +41,30 @@ class StoryTuringTest:
         return texts, labels
 
     def read_cn_novel_whole_data(self, data_dir, semantic_change):
-
-        if semantic_change == 'likelihood_rank':
-            test_data_path = os.path.join(data_dir, 'valid_rank.tgt')
-            train_data_path = os.path.join(data_dir, 'train_rank.tgt')
-        else:
-            test_data_path = os.path.join(data_dir, 'valid.tgt')
-            train_data_path = os.path.join(data_dir, 'train.tgt')
-
         train_label_path = os.path.join(data_dir, 'train.label')
         test_label_path = os.path.join(data_dir, 'valid.label')
+        test_data_path = os.path.join(data_dir, 'valid.tgt')
+        train_data_path = os.path.join(data_dir, 'train.tgt')
 
         train_texts, train_labels = self._read_text_label(train_data_path, train_label_path)
         test_texts, test_labels = self._read_text_label(test_data_path, test_label_path)
+
+        if semantic_change == ['likelihood_rank']:
+            train_rank_data_path = os.path.join(data_dir, 'train_rank.tgt')
+            test_rank_data_path = os.path.join(data_dir, 'valid_rank.tgt')
+            train_ranks = self._read_text_rank(train_rank_data_path)
+            test_ranks = self._read_text_rank(test_rank_data_path)
+
+            new_train_texts = []
+            for x1, x2 in zip(train_texts, train_ranks):
+                new_train_texts.append((x1, x2))
+
+            new_test_ranks = []
+            for x1, x2 in zip(test_texts, test_ranks):
+                new_test_ranks.append((x1, x2))
+
+            train_texts = new_train_texts
+            test_texts = new_test_ranks
 
         whole_texts = train_texts + test_texts
         whole_labels = train_labels + test_labels

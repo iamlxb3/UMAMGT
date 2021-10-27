@@ -1,6 +1,7 @@
 import ipdb
 import copy
 import random
+import numpy as np
 
 
 class SemanticModifier:
@@ -32,12 +33,27 @@ class SemanticModifier:
 
         # TODO: '</s>' 后面后一个空格, split(' ') 之后会出现一个''，暂时没有处理
         for text in texts:
-            split_text = text.split(' ')
-
             # 这里其实是char在词表里的rank
             if char_freq_range != 0:
-                split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
-                split_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
+
+                if 'likelihood_rank' in self.semantic_change:
+                    origin_text, text_rank = text
+                    split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in origin_text.split()]
+                    masked_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
+                    mask_indices = np.where(np.array(masked_text) == '[MASK]')[0]
+                    text_rank = np.array(text_rank.split(' '), dtype='U6')
+                    text_rank[mask_indices] = '[MASK]'
+                    split_text = text_rank.tolist()
+                    assert len(origin_text.split()) == len(split_text)
+                else:
+                    split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in text.split(' ')]
+                    split_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
+            else:
+                if 'likelihood' in self.semantic_change:
+                    text = text[1]
+                    split_text = text.split(' ')
+                else:
+                    split_text = text.split(' ')
 
             if 'reorder_shuffle' in self.semantic_change:
                 random.shuffle(split_text)

@@ -108,7 +108,8 @@ def main():
 
     # (0.) read dataset
     story_turing_test = StoryTuringTest(tokenizer, dataset_name=dataset_name)
-    whole_texts, whole_labels = story_turing_test.read_cn_novel_whole_data(data_dir)
+    assert 'likelihood_rank' not in semantic_change
+    whole_texts, whole_labels = story_turing_test.read_cn_novel_whole_data(data_dir, semantic_change)
     if is_debug:
         whole_texts, whole_labels = whole_texts[:200], whole_labels[:200]
 
