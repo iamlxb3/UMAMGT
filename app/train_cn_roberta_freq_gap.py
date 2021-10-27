@@ -97,7 +97,7 @@ def main():
         classifier_name += '_no_pretrain'
 
     semantic_change_str = semantic_change
-    semantic_modifier = SemanticModifier(semantic_change, char_freq=char_freq)
+    semantic_modifier = SemanticModifier(semantic_change, char_freq_rank=char_freq)
 
     tokenizer = AutoTokenizer.from_pretrained(hugginface_model_id)
 

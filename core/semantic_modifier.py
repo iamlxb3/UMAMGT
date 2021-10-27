@@ -4,16 +4,16 @@ import random
 
 
 class SemanticModifier:
-    def __init__(self, semantic_change, char_freq=None):
+    def __init__(self, semantic_change, char_freq_rank=None):
         self.semantic_change = semantic_change
-        self.char_freq = char_freq
-        self.max_freq = max(self.char_freq.values())
+        self.char_freq_rank = char_freq_rank
+        self.max_freq = max(self.char_freq_rank.values())
 
     def rm_chars_out_freq(self, texts, char_freq_range):
         processed_texts = []
         for text in texts:
             split_text = text.split(' ')
-            split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+            split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
             split_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
             processed_texts.append(' '.join(split_text))
         return processed_texts
@@ -22,7 +22,7 @@ class SemanticModifier:
         processed_texts = []
         for text in texts:
             split_text = text.split(' ')
-            split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+            split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
             split_text = [x if freq > char_freq_range else '[MASK]' for (x, freq) in split_text_order]
             processed_texts.append(' '.join(split_text))
         return processed_texts
@@ -36,7 +36,7 @@ class SemanticModifier:
 
             # 这里其实是char在词表里的rank
             if char_freq_range != 0:
-                split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+                split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
                 split_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
 
             if 'reorder_shuffle' in self.semantic_change:
@@ -44,13 +44,13 @@ class SemanticModifier:
 
             # 从高频词到低频词
             elif 'reorder_freq_high2low' in self.semantic_change:
-                split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+                split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
                 split_text = sorted(split_text_order, key=lambda x: x[1])
                 split_text = [x[0] for x in split_text]
 
             # 从低频词到高频词
             elif 'reorder_freq_low2high' in self.semantic_change:
-                split_text_order = [(x, self.char_freq.get(x, self.max_freq)) for x in split_text]
+                split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
                 split_text = sorted(split_text_order, key=lambda x: x[1], reverse=True)
                 split_text = [x[0] for x in split_text]
 

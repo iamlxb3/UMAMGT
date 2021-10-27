@@ -29,11 +29,17 @@ class StoryTuringTest:
         assert len(texts) == len(labels)
         return texts, labels
 
-    def read_cn_novel_whole_data(self, data_dir):
-        test_data_path = os.path.join(data_dir, 'valid.tgt')
-        test_label_path = os.path.join(data_dir, 'valid.label')
-        train_data_path = os.path.join(data_dir, 'train.tgt')
+    def read_cn_novel_whole_data(self, data_dir, semantic_change):
+
+        if semantic_change == 'likelihood_rank':
+            test_data_path = os.path.join(data_dir, 'valid_rank.tgt')
+            train_data_path = os.path.join(data_dir, 'train_rank.tgt')
+        else:
+            test_data_path = os.path.join(data_dir, 'valid.tgt')
+            train_data_path = os.path.join(data_dir, 'train.tgt')
+
         train_label_path = os.path.join(data_dir, 'train.label')
+        test_label_path = os.path.join(data_dir, 'valid.label')
 
         train_texts, train_labels = self._read_text_label(train_data_path, train_label_path)
         test_texts, test_labels = self._read_text_label(test_data_path, test_label_path)
