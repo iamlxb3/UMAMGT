@@ -266,4 +266,4 @@ if __name__ == '__main__':
     t1 = time.time()
     main()
     t2 = time.time()
-    print(f'Total {(t1 - t2) / 60.0} minutes')
+    print(f'Total {(t2 - t1) / 60.0} minutes')

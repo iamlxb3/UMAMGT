@@ -12,7 +12,8 @@ class SemanticModifier:
         self.char_freq_rank = char_freq_rank
         self.max_freq = max(self.char_freq_rank.values())
         if 'pos' or 'dep' in semantic_change:
-            self.spacy_parser = spacy.load("zh_core_web_sm")
+            # self.spacy_parser = spacy.load("zh_core_web_sm")
+            self.spacy_parser = spacy.load("zh_core_web_trf")
         else:
             self.spacy_parser = None
 
