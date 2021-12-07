@@ -25,3 +25,5 @@ max_text_length
 
 bash run_story_interpret.sh 0 8 512
 ```
+
+Grover模型：https://github.com/rowanz/grover

@@ -1,9 +1,7 @@
-\begin{tabular}{@{}c|ccccc@{}}
+\begin{tabular}{@{}ccccccccc@{}}
 \toprule
- & dedup. & high2low & low2high & shuf. & shuf. dedup. \\ \midrule
-origin & -14.22\%‡ & -14.22\%‡ & 1.11\%‡ & -20.21\%‡ & -20.21\%‡ \\
-dedup. & - & -14.22\%† & 1.11\%† & -20.21\%† & -20.21\%† \\
-high2low & - & - & 1.11\%† & -20.21\%† & -20.21\%† \\
-low2high & - & - & - & -20.21\%† & -20.21\%† \\
-shuf. & - & - & - & - & -20.21\%† \\ \bottomrule
+Model & Text change apply to & origin & dedup. & high to low & low to high & shuf. & shuf. dedup. & Prob.rank \\ \midrule
+roberta_{pre} & train \& test & 0.955±0.010 & 0.934±0.010 & 0.929±0.006 & 0.929±0.005 & 0.931±0.005 & 0.906±0.004 & 0.769±0.009 \\
+roberta_{non-pre} & train \& test & 0.845±0.011 & 0.892±0.005 & 0.822±0.007 & 0.822±0.009 & 0.820±0.010 & 0.891±0.005 & 0.721±0.008 \\
+roberta_{pre} & test & 0.955±0.010 & 0.499±0.008 & 0.500±0.008 & 0.500±0.008 & 0.642±0.034 & 0.499±0.008 & - \\ \bottomrule
 \end{tabular}

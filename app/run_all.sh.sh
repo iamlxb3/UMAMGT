@@ -4,7 +4,7 @@
 #re_init_weights=${4:-0}
 #repeat=${5:-1}
 
-# apply to test
+# apply to test (pretrain)
 bash train_on_cn_novel_origin.sh                      '16 32 64 128 256 512 1024 0' 1 0 0 15
 bash train_on_cn_novel_origin.sh                      '16 32 64 128 256 512 1024 0' 1 0 1 15 #  non pre-train
 bash train_on_cn_novel_reorder_shuffle.sh             '16 32 64 128 256 512 1024 0' 1 0 0 15
@@ -13,6 +13,14 @@ bash train_on_cn_novel_reorder_freq_high2low.sh       '16 32 64 128 256 512 1024
 bash train_on_cn_novel_reorder_freq_low2high.sh       '16 32 64 128 256 512 1024 0' 1 0 0 15
 bash train_on_cn_novel_reorder_shuffle+deduplicate.sh '16 32 64 128 256 512 1024 0' 1 0 0 15
 bash train_on_cn_novel_likelihood_rank.sh             '16 32 64 128 256 512 1024 0' 1 0 0 15
+
+# apply to test (not pretrain)
+bash train_on_cn_novel_reorder_shuffle.sh             '16 32 64 128 256 512 1024 0' 1 0 1 15
+bash train_on_cn_novel_char_deduplicate.sh            '16 32 64 128 256 512 1024 0' 1 0 1 15
+bash train_on_cn_novel_reorder_freq_high2low.sh       '16 32 64 128 256 512 1024 0' 1 0 1 15
+bash train_on_cn_novel_reorder_freq_low2high.sh       '16 32 64 128 256 512 1024 0' 1 0 1 15
+bash train_on_cn_novel_reorder_shuffle+deduplicate.sh '16 32 64 128 256 512 1024 0' 1 0 1 15
+bash train_on_cn_novel_likelihood_rank.sh             '16 32 64 128 256 512 1024 0' 1 0 1 15
 
 #char_freq_ranges=${1:-0}
 #is_debug=${2:-0}

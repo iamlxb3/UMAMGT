@@ -209,6 +209,7 @@ def main():
             print(f"test_result: {test_result}")
             exp_recorder.add_one_repeat_result(repeat_i,
                                                is_change_apply_to_test,
+                                               True,
                                                classifier_name,
                                                dataset_name,
                                                semantic_change,

@@ -6,6 +6,7 @@ class ExpRecorder:
         self.result_df = {
             'repeat_i': [],
             'is_change_apply_to_test': [],
+            'is_change_apply_to_train': [],
             'classifier_name': [],
             'dataset_name': [],
             'semantic_change': [],
@@ -22,6 +23,7 @@ class ExpRecorder:
     def add_one_repeat_result(self,
                               repeat_i,
                               is_change_apply_to_test,
+                              is_change_apply_to_train,
                               classifier_name,
                               dataset_name,
                               semantic_change,
@@ -35,6 +37,7 @@ class ExpRecorder:
                               test_size
                               ):
         self.result_df['repeat_i'].append(repeat_i)
+        self.result_df['is_change_apply_to_train'].append(is_change_apply_to_train)
         self.result_df['is_change_apply_to_test'].append(is_change_apply_to_test)
         self.result_df['classifier_name'].append(classifier_name)
         self.result_df['dataset_name'].append(dataset_name)

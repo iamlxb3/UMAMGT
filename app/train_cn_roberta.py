@@ -63,6 +63,7 @@ def args_parse():
                                  ],
                         required=True)
     parser.add_argument('--is_change_apply_to_test', type=int, default=0)
+    parser.add_argument('--is_change_apply_to_train', type=int, default=1)
     parser.add_argument('--re_init_weights', type=int, default=0)
     args = parser.parse_args()
     return args
@@ -78,7 +79,8 @@ def main():
     is_debug = args.is_debug
     is_debug = True if is_debug else False
     is_change_apply_to_test = args.is_change_apply_to_test
-    is_change_apply_to_test = True if is_change_apply_to_test else is_change_apply_to_test
+    is_change_apply_to_test = True if is_change_apply_to_test else False
+    is_change_apply_to_train = True if args.is_change_apply_to_train else False
     data_dir = args.data_dir
     re_init_weights = args.re_init_weights
     semantic_change = args.semantic_change
@@ -86,6 +88,9 @@ def main():
     save_dir = args.save_dir
     char_freq_txt_path = args.char_freq_txt_path
     save_dir = os.path.abspath(save_dir)
+
+    if 'likelihood_rank' in semantic_change:
+        assert is_change_apply_to_test == True
 
     # read char frequencies
     char_freq_rank = {}
@@ -114,7 +119,7 @@ def main():
 
     # 直接用tokenizer的vocab看来也不行，因为前面都是ascii码，后面也不是完全按照词频排序的样子
     # tokenizer_keys = list(tokenizer.vocab.keys())
-
+    # ipdb.set_trace()
     # read whole dataset into memory
 
     # (0.) read dataset
@@ -159,8 +164,10 @@ def main():
             test_labels = shuffle_whole_labels[len(whole_texts) - test_size:]
 
             # apply semantic change
-            train_texts = semantic_modifier.change_texts(train_texts, char_freq_range)
-            val_texts = semantic_modifier.change_texts(val_texts, char_freq_range)
+            if is_change_apply_to_train:
+                train_texts = semantic_modifier.change_texts(train_texts, char_freq_range)
+                val_texts = semantic_modifier.change_texts(val_texts, char_freq_range)
+
             if is_change_apply_to_test:
                 test_texts = semantic_modifier.change_texts(test_texts, char_freq_range)
 
@@ -213,6 +220,7 @@ def main():
             print(f"test_result: {test_result}")
             exp_recorder.add_one_repeat_result(repeat_i,
                                                is_change_apply_to_test,
+                                               is_change_apply_to_train,
                                                classifier_name,
                                                dataset_name,
                                                semantic_change,
@@ -230,10 +238,9 @@ def main():
             print(f"Remove temp dir {tmp_ckpts_dir} SUCCESS!!!!")
 
     # save path
-    if is_change_apply_to_test:
-        save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}.csv')
-    else:
-        save_path = os.path.join(save_dir, f'{dataset_name}_{classifier_name}_{semantic_change_str}_test_intact.csv')
+    save_path = os.path.join(save_dir,
+                             f'{dataset_name}_{classifier_name}_{semantic_change_str}_{is_change_apply_to_train}'
+                             f'_{is_change_apply_to_test}.csv')
     exp_recorder.save_to_disk(save_path)
 
     # # Save model

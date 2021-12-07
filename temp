@@ -1,48 +1,8 @@
-***** Running training *****
-  Num examples = 90
-  Num Epochs = 1
-  Instantaneous batch size per device = 16
-  Total train batch size (w. parallel, distributed & accumulation) = 16
-  Gradient Accumulation steps = 1
-  Total optimization steps = 6
- 33%|██████████████████████████████████████████████████████████                                                                                                                    | 2/6 [00:05<00:11,  2.87s/it]***** Running Evaluation *****
-  Num examples = 10
-  Batch size = 64
-{'eval_loss': 0.6873111724853516, 'eval_accuracy': 0.6, 'eval_precision': 0.6, 'eval_recall': 1.0, 'eval_f1': 0.7499999999999999, 'eval_runtime': 0.4536, 'eval_samples_per_second': 22.045, 'eval_steps_per_second': 2.204, 'epoch': 0.33}
- 33%|██████████████████████████████████████████████████████████                                                                                                                    | 2/6 [00:06<00:11,  2.87s/itSaving model checkpoint to ../result/checkpoint-2
-Configuration saved in ../result/checkpoint-2/config.json
-Model weights saved in ../result/checkpoint-2/pytorch_model.bin
-Deleting older checkpoint [../result/checkpoint-6] due to args.save_total_limit
- 67%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                                                          | 4/6 [00:12<00:06,  3.16s/it]***** Running Evaluation *****
-  Num examples = 10
-  Batch size = 64
-{'eval_loss': 0.6870378851890564, 'eval_accuracy': 0.6, 'eval_precision': 0.6, 'eval_recall': 1.0, 'eval_f1': 0.7499999999999999, 'eval_runtime': 0.4533, 'eval_samples_per_second': 22.063, 'eval_steps_per_second': 2.206, 'epoch': 0.67}
- 67%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████                                                          | 4/6 [00:13<00:06,  3.16s/itSaving model checkpoint to ../result/checkpoint-4
-Configuration saved in ../result/checkpoint-4/config.json
-Model weights saved in ../result/checkpoint-4/pytorch_model.bin
-Deleting older checkpoint [../result/checkpoint-2] due to args.save_total_limit
-100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:19<00:00,  3.01s/it]***** Running Evaluation *****
-  Num examples = 10
-  Batch size = 64
-{'eval_loss': 0.6861752867698669, 'eval_accuracy': 0.6, 'eval_precision': 0.6, 'eval_recall': 1.0, 'eval_f1': 0.7499999999999999, 'eval_runtime': 0.4527, 'eval_samples_per_second': 22.089, 'eval_steps_per_second': 2.209, 'epoch': 1.0}
-100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:19<00:00,  3.01s/itSaving model checkpoint to ../result/checkpoint-6
-Configuration saved in ../result/checkpoint-6/config.json
-Model weights saved in ../result/checkpoint-6/pytorch_model.bin
-Deleting older checkpoint [../result/checkpoint-4] due to args.save_total_limit
-
-
-Training completed. Do not forget to share your model on huggingface.co/models =)
-
-
-Loading best model from ../result/checkpoint-6 (score: 0.6861752867698669).
-{'train_runtime': 20.4937, 'train_samples_per_second': 4.392, 'train_steps_per_second': 0.293, 'train_loss': 0.7353793780008951, 'epoch': 1.0}
-100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 6/6 [00:20<00:00,  3.42s/it]
-train_result: TrainOutput(global_step=6, training_loss=0.7353793780008951, metrics={'train_runtime': 20.4937, 'train_samples_per_second': 4.392, 'train_steps_per_second': 0.293, 'train_loss': 0.7353793780008951, 'epoch': 1.0})
-***** Running Evaluation *****
-  Num examples = 100
-  Batch size = 64
-100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 2/2 [00:01<00:00,  1.14it/s]
-test_result: {'test_loss': 0.7558950781822205, 'test_accuracy': 0.52, 'test_precision': 0.52, 'test_recall': 1.0, 'test_f1': 0.6842105263157895, 'test_runtime': 4.8306, 'test_samples_per_second': 20.701, 'test_steps_per_second': 0.414, 'epoch': 1.0}
-Configuration saved in ../model_ckpts/cn-roberta-story-turning-train_90-seq_118/config.json
-Model weights saved in ../model_ckpts/cn-roberta-story-turning-train_90-seq_118/pytorch_model.bin
-Save best model ckpt to /home/iamlxb3/temp_rsync_dir/story_turing_test/model_ckpts/cn-roberta-story-turning-train_90-seq_118
+\begin{tabular}{@{}ccccccccc@{}}
+\toprule
+Model & Corrupted on & origin^{1} & dedup.^{2} & asend.^{3} & desend.^{4} & shuf.^{5} & shuf. dedup.^{6} & prob.rank^{7} \\ \midrule
+Pre. & D_{train}, D_{test} & \textbf{$0.955‡^{all}$} & 0.934‡^{\{6,7\}} & 0.929‡^{\{6,7\}} & 0.929‡^{\{6,7\}} & 0.931‡^{\{6,7\}}\dag^{\{3,4\}} & 0.906 & 0.769 \\
+Not.Pre. & D_{train}, D_{test} & 0.845‡^{\{3,4,5,7\}} & \textbf{0.892‡^{\{1,3,4,5,7\}}} & 0.822‡^{\{7\}} & 0.822‡^{\{7\}} & 0.820‡^{\{7\}} & {\ul 0.891‡^{\{1,3,4,5,7\}}} & 0.721 \\
+Pre. & D_{train} & \textbf{$0.955‡^{all}$} & 0.499 & 0.500 & 0.500 & {\ul 0.642‡^{\{2,3,4,6\}}} & 0.499 & - \\
+Pre. & D_{test} & \textbf{$0.955‡^{all}$} &  & 0.516‡^{\{6\}} & {\ul 0.618‡^{\{3,5,6\}}} & 0.577‡^{\{3,6\}} & 0.480 & - \\ \bottomrule
+\end{tabular}
