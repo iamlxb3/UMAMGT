@@ -59,7 +59,9 @@ def args_parse():
                                  'reorder_freq_low2high',
                                  'char_deduplicate',
                                  'None',
-                                 'likelihood_rank'
+                                 'likelihood_rank',
+                                 'pos',
+                                 'dep'
                                  ],
                         required=True)
     parser.add_argument('--is_change_apply_to_test', type=int, default=0)
@@ -89,8 +91,9 @@ def main():
     char_freq_txt_path = args.char_freq_txt_path
     save_dir = os.path.abspath(save_dir)
 
-    if 'likelihood_rank' in semantic_change:
-        assert is_change_apply_to_test == True
+    for x in {'likelihood_rank', 'pos', 'dep'}:
+        if x in semantic_change:
+            is_change_apply_to_test = True
 
     # read char frequencies
     char_freq_rank = {}
@@ -263,4 +266,4 @@ if __name__ == '__main__':
     t1 = time.time()
     main()
     t2 = time.time()
-    print(f'Total minutes: {(t1 - t2) / 60.0}')
+    print(f'Total {(t1 - t2) / 60.0} minutes')

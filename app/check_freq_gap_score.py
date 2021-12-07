@@ -1,3 +1,7 @@
+"""
+生成freq gap那张图
+"""
+
 import ipdb
 import collections
 import numpy as np

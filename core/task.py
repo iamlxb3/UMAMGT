@@ -49,7 +49,7 @@ class StoryTuringTest:
         train_texts, train_labels = self._read_text_label(train_data_path, train_label_path)
         test_texts, test_labels = self._read_text_label(test_data_path, test_label_path)
 
-        if semantic_change == ['likelihood_rank']:
+        if 'likelihood_rank' in semantic_change:
             train_rank_data_path = os.path.join(data_dir, 'train_rank.tgt')
             test_rank_data_path = os.path.join(data_dir, 'valid_rank.tgt')
             train_ranks = self._read_text_rank(train_rank_data_path)
@@ -74,10 +74,12 @@ class StoryTuringTest:
     def create_dataset(self, texts, labels, max_length=512):
 
         text_encodings = self.tokenizer(list(texts), truncation=True, padding=True, max_length=max_length)
-
+        # self.tokenizer.tokenize(texts[0])
+        # 这里用add_tokens无效，可能需要把词表里带#号的都删除才行
+        # self.tokenizer.tokenize('NOUN PART VERB PART')
+        # ['no', '##un', 'part', 'ver', '##b', 'part']
         # create dataset
         dataset = StoryTuringTestData(text_encodings, labels)
-
         return dataset
 
     def read_test_data(self, data_dir, debug_N):
