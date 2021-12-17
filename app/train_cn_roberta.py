@@ -61,7 +61,9 @@ def args_parse():
                                  'None',
                                  'likelihood_rank',
                                  'pos',
-                                 'dep'
+                                 'dep',
+                                 'constit',  # phrase structure tree, constituency tree,
+                                 'ner'
                                  ],
                         required=True)
     parser.add_argument('--is_change_apply_to_test', type=int, default=0)
@@ -95,6 +97,9 @@ def main():
         if x in semantic_change:
             is_change_apply_to_test = True
 
+    if 'pos' in semantic_change or 'dep' in semantic_change:
+        assert char_freq_ranges == [0]
+
     # read char frequencies
     char_freq_rank = {}
     with open(char_freq_txt_path, 'r') as f:
@@ -116,6 +121,23 @@ def main():
         classifier_name += '_no_pretrain'
 
     semantic_change_str = '_'.join(semantic_change)
+
+    # set save path
+    # save path
+    save_name = f'{dataset_name}_{classifier_name}_{semantic_change_str}' \
+                f'_{is_change_apply_to_train}_{is_change_apply_to_test}'
+    if is_debug:
+        save_name = save_name + '_debug.csv'
+    else:
+        save_name = save_name + '.csv'
+    save_path = os.path.join(save_dir, save_name)
+
+    if os.path.isfile(save_path):
+        print(f"=" * 78)
+        print(f"{save_path} exist. Skip Training!!!")
+        print(f"=" * 78)
+        return
+
     semantic_modifier = SemanticModifier(semantic_change, char_freq_rank=char_freq_rank)
 
     tokenizer = AutoTokenizer.from_pretrained(hugginface_model_id)
@@ -240,10 +262,6 @@ def main():
             shutil.rmtree(tmp_ckpts_dir)
             print(f"Remove temp dir {tmp_ckpts_dir} SUCCESS!!!!")
 
-    # save path
-    save_path = os.path.join(save_dir,
-                             f'{dataset_name}_{classifier_name}_{semantic_change_str}_{is_change_apply_to_train}'
-                             f'_{is_change_apply_to_test}.csv')
     exp_recorder.save_to_disk(save_path)
 
     # # Save model

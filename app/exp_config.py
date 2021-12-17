@@ -3,8 +3,8 @@ VAL_PERCENT = 0.1
 TEST_PERCENT = 0.1
 MAX_SEQ_LENGTH = 512
 
-SYSTEM_CONFIG = {'per_device_train_batch_size': 16,
-                 'gradient_accumulation_steps': 8}
+SYSTEM_CONFIG = {'per_device_train_batch_size': 8,
+                 'gradient_accumulation_steps': 16}
 
 # logging_steps: logging when training roberta
 # the frequency of evaluating on the val set for roberta

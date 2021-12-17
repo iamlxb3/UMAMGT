@@ -1,9 +1,14 @@
+import os
 import ipdb
 import copy
 import random
 import numpy as np
+import glob
 import spacy
 from tqdm import tqdm
+import pickle
+import hashlib
+import benepar
 
 
 class SemanticModifier:
@@ -11,9 +16,17 @@ class SemanticModifier:
         self.semantic_change = semantic_change
         self.char_freq_rank = char_freq_rank
         self.max_freq = max(self.char_freq_rank.values())
-        if 'pos' or 'dep' in semantic_change:
+        if 'pos' in semantic_change or \
+                'dep' in semantic_change or \
+                'constit' in semantic_change or \
+                'ner' in semantic_change:
             # self.spacy_parser = spacy.load("zh_core_web_sm")
             self.spacy_parser = spacy.load("zh_core_web_trf")
+            # if 'constit' in semantic_change:
+            benepar_model = 'benepar_zh2'
+            self.spacy_parser.add_pipe("benepar", config={"model": benepar_model})
+            print(f'Spacy add benepar pipe done! Model: {benepar_model}')
+            self.spacy_results = {}
         else:
             self.spacy_parser = None
 
@@ -89,21 +102,66 @@ class SemanticModifier:
                         appear_set.add(x)
                 split_text = new_split_text
 
-            if 'pos' in self.semantic_change or 'dep' in self.semantic_change:
+            if 'pos' in self.semantic_change or \
+                    'dep' in self.semantic_change or \
+                    'constit' in self.semantic_change or \
+                    'ner' in self.semantic_change:
                 # from spacy.lang.zh.examples import sentences
                 # example_sentence = sentences[0]
-                parse_res = self.spacy_parser(text.replace(' ', ''))
-                new_text = []
-                for token in parse_res:
-                    if 'pos' in self.semantic_change:
-                        new_text.append(token.pos_)
-                    elif 'dep' in self.semantic_change:
-                        new_text.append(token.dep_)
+                to_parse_text = text.replace(' ', '')
+                model_name = self.spacy_parser.meta['name'] + '_' + self.spacy_parser.meta['lang']
+                text_md5 = hashlib.md5(f'{model_name}_{to_parse_text}'.encode()).hexdigest()
+
+                if text_md5 in self.spacy_results:
+                    split_text = self.spacy_results[text_md5]
+                else:
+                    text_pickle_path = f'../spacy_temp/{text_md5}.pkl'
+                    if os.path.isfile(text_pickle_path):
+                        parse_res = pickle.load(open(text_pickle_path, 'rb'))
+                    else:
+                        parse_res = self.spacy_parser(to_parse_text)
+                        pickle.dump(parse_res, open(text_pickle_path, 'wb'))
+                    new_text = []
+                    # Reference: https://spacy.io/usage/linguistic-features#dependency-parse
+
+                    if 'pos' in self.semantic_change or 'dep' in self.semantic_change:
+                        for token in parse_res:
+                            if 'pos' in self.semantic_change:
+                                new_text.append(token.pos_)
+                            elif 'dep' in self.semantic_change:
+                                new_text.append(token.dep_)
+                                new_text.append(str(token.idx))
+                                new_text.append(str(token.head.idx))
+                                # new_text.append(token.head.text)
+                            else:
+                                raise Exception
+                        new_text = ' '.join(new_text)
+                    elif 'constit' in self.semantic_change:
+                        new_text = []
+                        tokens = [str(x) for x in parse_res]
+                        tokens = ''.join(tokens)
+                        tokens_set = set(list(tokens))
+                        for sen in parse_res.sents:
+                            parse_string = sen._.parse_string
+                            new_text.append(parse_string)
+                        new_text = '<s>'.join(new_text)
+                        for token in tokens_set:
+                            new_text = new_text.replace(str(token), '')
+                        new_text = new_text.replace(' ', '')
+                    elif 'ner' in self.semantic_change:
+                        new_text = []
+                        for ent in parse_res.ents:
+                            new_text.append(ent.label_)
+                            new_text.append(str(ent.start_char))
+                            new_text.append(str(ent.end_char))
+                        new_text = ' '.join(new_text)
                     else:
                         raise Exception
-                split_text = new_text
+                    split_text = new_text
+                    self.spacy_results[text_md5] = split_text
                 # 这个pos/dep tag的数量和原本中文的数量是对不上的，因为会对中文做分词，所以会短一点
-            processed_texts.append(' '.join(split_text))
+
+            processed_texts.append(split_text)
 
         assert len(processed_texts) == len(texts)
 
