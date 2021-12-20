@@ -1,4 +1,5 @@
 data/
+raw/
 data/*
 model_ckpts/
 pretrain_models/

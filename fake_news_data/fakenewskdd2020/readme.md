@@ -1,1 +1,0 @@
-https://www.kaggle.com/c/fakenewskdd2020/data
