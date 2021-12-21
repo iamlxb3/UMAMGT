@@ -11,10 +11,10 @@ data_dir=../data/5billion
 save_dir=../result/
 dataset_name=cn_novel_5billion
 classifier_name=cn_roberta
-char_freq_txt_path=../data/sort_char.txt
+char_freq_txt_path=../data/5billion/sort_char.txt
 semantic_change='dep'
 
-python3.6 train_cn_roberta.py --classifier_name $classifier_name \
+python3.6 train_roberta.py --classifier_name $classifier_name \
                               --dataset_name $dataset_name \
                               --data_dir $data_dir \
                               --save_dir $save_dir \

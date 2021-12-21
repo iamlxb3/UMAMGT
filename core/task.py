@@ -47,24 +47,27 @@ class StoryTuringTest:
         train_data_path = os.path.join(data_dir, 'train.tgt')
 
         train_texts, train_labels = self._read_text_label(train_data_path, train_label_path)
-        test_texts, test_labels = self._read_text_label(test_data_path, test_label_path)
+        if os.path.isfile(test_data_path):
+            test_texts, test_labels = self._read_text_label(test_data_path, test_label_path)
+        else:
+            test_texts, test_labels = [], []
 
         if 'likelihood_rank' in semantic_change:
             train_rank_data_path = os.path.join(data_dir, 'train_rank.tgt')
             test_rank_data_path = os.path.join(data_dir, 'valid_rank.tgt')
             train_ranks = self._read_text_rank(train_rank_data_path)
-            test_ranks = self._read_text_rank(test_rank_data_path)
 
             new_train_texts = []
             for x1, x2 in zip(train_texts, train_ranks):
                 new_train_texts.append((x1, x2))
-
-            new_test_ranks = []
-            for x1, x2 in zip(test_texts, test_ranks):
-                new_test_ranks.append((x1, x2))
-
             train_texts = new_train_texts
-            test_texts = new_test_ranks
+
+            if test_texts:
+                test_ranks = self._read_text_rank(test_rank_data_path)
+                new_test_ranks = []
+                for x1, x2 in zip(test_texts, test_ranks):
+                    new_test_ranks.append((x1, x2))
+                test_texts = new_test_ranks
 
         whole_texts = train_texts + test_texts
         whole_labels = train_labels + test_labels
@@ -72,7 +75,6 @@ class StoryTuringTest:
         return np.array(whole_texts), np.array(whole_labels)
 
     def create_dataset(self, texts, labels, max_length=512):
-
         text_encodings = self.tokenizer(list(texts), truncation=True, padding=True, max_length=max_length)
         # self.tokenizer.tokenize(texts[0])
         # 这里用add_tokens无效，可能需要把词表里带#号的都删除才行

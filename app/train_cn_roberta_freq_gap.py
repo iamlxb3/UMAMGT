@@ -23,13 +23,13 @@ from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_sc
 from pytorch_lightning import seed_everything
 
 
-# python3.6 train_cn_roberta.py --epoch 1 --debug_N 100
-# python3.6 train_cn_roberta.py --epoch 20 --per_device_train_batch_size 32 --gradient_accumulation_steps 4
+# python3.6 train_roberta.py --epoch 1 --debug_N 100
+# python3.6 train_roberta.py --epoch 20 --per_device_train_batch_size 32 --gradient_accumulation_steps 4
 
-# python3.6 train_cn_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort
-# python3.6 train_cn_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort_no_reverse
-# python3.6 train_cn_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort_unique_no_reverse
-# python3.6 train_cn_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_shuffle_unique_no_reverse
+# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort
+# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort_no_reverse
+# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort_unique_no_reverse
+# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_shuffle_unique_no_reverse
 
 def compute_metrics(eval_predict):
     predict_prob, labels = eval_predict
@@ -46,8 +46,9 @@ def args_parse():
     parser.add_argument('--data_dir', type=str, required=True)
     parser.add_argument('--save_dir', type=str, required=True)
     parser.add_argument('--char_freq_txt_path', type=str)
-    parser.add_argument('--classifier_name', type=str, required=True, choices=['cn_roberta'])
-    parser.add_argument('--dataset_name', type=str, required=True, choices=['cn_novel_5billion'])
+    parser.add_argument('--classifier_name', type=str, required=True, choices=['cn_roberta', 'en_roberta'])
+    parser.add_argument('--dataset_name', type=str, required=True,
+                        choices=['cn_novel_5billion', 'en_grover', 'en_writing_prompt'])
     parser.add_argument('--is_debug', type=int, default=0)
     parser.add_argument('--char_freq_ranges', nargs='+', type=int, default=[0])
     parser.add_argument('--repeat', type=int, default=1, help='repeat with random seads')
@@ -90,6 +91,10 @@ def main():
 
     if classifier_name == 'cn_roberta':
         hugginface_model_id = 'hfl/chinese-roberta-wwm-ext'
+        language = 'cn'
+    elif classifier_name == 'en_roberta':
+        hugginface_model_id = 'roberta-base'
+        language = 'en'
     else:
         raise NotImplementedError
 
@@ -97,7 +102,7 @@ def main():
         classifier_name += '_no_pretrain'
 
     semantic_change_str = semantic_change
-    semantic_modifier = SemanticModifier(semantic_change, char_freq_rank=char_freq)
+    semantic_modifier = SemanticModifier(semantic_change, language, char_freq_rank=char_freq)
 
     tokenizer = AutoTokenizer.from_pretrained(hugginface_model_id)
 
