@@ -159,8 +159,17 @@ class SemanticModifier:
                         try:
                             parse_res = self.spacy_parser(to_parse_text)
                         except Exception as e:
-                            print(f'Pickle exception: {e}')
-                            continue
+                            try:
+                                parse_res = self.spacy_parser(to_parse_text[:int(len(to_parse_text) / 2)])
+                            except Exception as e:
+                                try:
+                                    parse_res = self.spacy_parser(to_parse_text[:int(len(to_parse_text) / 4)])
+                                except Exception as e:
+                                    try:
+                                        parse_res = self.spacy_parser(to_parse_text[:512])
+                                    except Exception as e:
+                                        print(f'Pickle exception: {e}')
+                                        ipdb.set_trace()
                     new_text = []
                     # Reference: https://spacy.io/usage/linguistic-features#dependency-parse
 
@@ -207,6 +216,6 @@ class SemanticModifier:
                     # print(split_text)
                     processed_texts.append(split_text)
 
-        # assert len(processed_texts) == len(texts)
+        assert len(processed_texts) == len(texts)
 
         return processed_texts
