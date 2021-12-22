@@ -215,7 +215,9 @@ class SemanticModifier:
                     assert isinstance(split_text, str)
                     # print(split_text)
                     processed_texts.append(split_text)
+            else:
+                processed_texts.append(' '.join(split_text))
 
-        assert len(processed_texts) == len(texts)
+        assert len(processed_texts) == len(texts), ipdb.set_trace()
 
         return processed_texts

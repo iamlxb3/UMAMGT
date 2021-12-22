@@ -128,7 +128,7 @@ def main():
         for repeat_i in range(repeat):
 
             # config tmp output dir
-            tmp_ckpts_dir = f'../model_ckpts/tmp/freq_gap_{semantic_change_str}_{repeat_i}'
+            tmp_ckpts_dir = f'../model_ckpts/tmp/freq_gap_{semantic_change_str}_{dataset_name}_{classifier_name}_{repeat_i}'
 
             repeat_seed = SEED_OFFSET + repeat_i
 

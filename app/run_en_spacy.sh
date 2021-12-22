@@ -1,11 +1,13 @@
 
 
 # RUN PRETRAIN EN_GROVER
-# 12-21: run on a8c03f50
-# bash run_en_spacy.sh 'en_grover' 0 0 'dep'
-# 12-21: run on a8c03f50
-# bash run_en_spacy.sh 'en_grover' 0 0 'pos'
+# 12-21: run on a8c02b65
+# bash run_en_spacy.sh 'en_grover' 0 0 'dep' # 数据量没有改
+# 12-21: run on
+# bash run_en_spacy.sh 'en_grover' 0 0 'pos' # 数据量没有改
+# 188455
 # bash run_en_spacy.sh 'en_grover' 0 0 'constit'
+# 188456
 # bash run_en_spacy.sh 'en_grover' 0 0 'ner'
 
 # RUN PRETRAIN writing_prompt

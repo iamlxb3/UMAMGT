@@ -3,14 +3,12 @@
 # bash run_en_all.sh 'en_writing_prompt' 1 0 '0'
 
 # RUN PRETRAIN EN_GROVER
-# 12-21: run on a8c03f50
 # bash run_en_all.sh 'en_grover' 0 0 '16 256 1024 0'
 
 # RUN NON PRETRAIN EN_GROVER
 # bash run_en_all.sh 'en_grover' 0 1 '16 256 1024 0'
 
 # RUN PRETRAIN en_writing_prompt
-# 12-21: run on a8c06428
 # bash run_en_all.sh 'en_writing_prompt' 0 0 '16 256 1024 0'
 
 # RUN NON PRETRAIN en_writing_prompt

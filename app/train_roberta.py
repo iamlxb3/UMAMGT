@@ -1,6 +1,7 @@
 import os
 import sys
 import ipdb
+import time
 import random
 import shutil
 import ntpath
@@ -145,7 +146,19 @@ def main():
 
     semantic_modifier = SemanticModifier(semantic_change, language, char_freq_rank=char_freq_rank)
 
-    tokenizer = AutoTokenizer.from_pretrained(hugginface_model_id)
+    load_complete = False
+    try_count = 0
+    while not load_complete:
+        try:
+            tokenizer = AutoTokenizer.from_pretrained(hugginface_model_id)
+            try_count += 1
+            if try_count >= 5:
+                raise Exception(f"Load auto tokenizer failed!")
+        except Exception as e:
+            print(f"Load tokenizer failed, count: {try_count}, exception: {e}")
+            time.sleep(1)
+        else:
+            load_complete = True
 
     # 直接用tokenizer的vocab看来也不行，因为前面都是ascii码，后面也不是完全按照词频排序的样子
     # tokenizer_keys = list(tokenizer.vocab.keys())
@@ -155,6 +168,11 @@ def main():
     # (0.) read dataset
     story_turing_test = StoryTuringTest(tokenizer, dataset_name=dataset_name)
     whole_texts, whole_labels = story_turing_test.read_cn_novel_whole_data(data_dir, semantic_change)
+
+    if dataset_name == 'en_grover':
+        whole_texts, whole_labels = whole_texts[:28000], whole_labels[:28000]
+        print(f"Set en grover dataset size to 28000")
+
     if is_debug:
         whole_texts, whole_labels = whole_texts[:200], whole_labels[:200]
 
@@ -211,7 +229,21 @@ def main():
                 f"Train label: {train_dataset.label}, val label: {val_dataset.label}, test label: {test_dataset.label}")
 
             # (1.) init model
-            model = AutoModelForSequenceClassification.from_pretrained(hugginface_model_id, num_labels=2)
+
+            load_complete = False
+            try_count = 0
+            while not load_complete:
+                try:
+                    model = AutoModelForSequenceClassification.from_pretrained(hugginface_model_id, num_labels=2)
+                    try_count += 1
+                    if try_count >= 5:
+                        raise Exception(f"Load auto model failed!")
+                except Exception as e:
+                    print(f"Load model failed, count: {try_count}, exception: {e}")
+                    time.sleep(1)
+                else:
+                    load_complete = True
+
             if re_init_weights:
                 model.init_weights()
                 print("Re init weights for model done!")

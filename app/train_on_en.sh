@@ -1,4 +1,4 @@
-# bash train_on_en.sh en_grover '0' 1 1 0 1 1
+# bash train_on_en.sh en_grover '0' 1 1 0 1 1 'char_deduplicate'
 # bash train_on_en.sh en_grover '0' 1 0 0 1 1
 
 dataset_name=${1:-0}
