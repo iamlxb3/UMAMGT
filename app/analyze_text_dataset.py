@@ -6,9 +6,8 @@ import pandas as pd
 
 sys.path.append('..')
 from core.text_analyzer import TextAnalyzer
+from core.utils import load_save_json
 
-
-# python analyze_text_dataset.py
 
 def _read_data(base_dir, dataset):
     file_path = os.path.join(base_dir, dataset, 'train.tgt')
@@ -69,10 +68,11 @@ def _save_basic_result(data_analyze_df, texts, dataset, src, language):
     data_analyze_df['meta'].append('basic')
 
 
+# python analyze_text_dataset.py
+
 def main():
     base_dir = '../data'
-    datasets = ['cn_novel_5billion', 'new_en_grover', 'en_writing_prompt']
-    text_analyzer = TextAnalyzer()
+    datasets = ['cn_novel_5billion', 'en_grover', 'en_writing_prompt']
     data_analyze_df = {'value': [], 'type': [], 'dataset': [], 'language': [], 'src': [], 'meta': []}
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -85,15 +85,14 @@ def main():
     n_grams = (1, 2, 3, 4, 5)
     for dataset in datasets:
         language = dataset.split('_')[0]
-
         human_texts, machine_texts = _read_data(base_dir, dataset)
 
-        # --------------------------------------------------------------------------------------------------------------
-        # read basic
-        # --------------------------------------------------------------------------------------------------------------
-        _save_basic_result(data_analyze_df, human_texts, dataset, 'human', language)
-        _save_basic_result(data_analyze_df, machine_texts, dataset, 'machine', language)
-        # --------------------------------------------------------------------------------------------------------------
+        # # --------------------------------------------------------------------------------------------------------------
+        # # read basic
+        # # --------------------------------------------------------------------------------------------------------------
+        # _save_basic_result(data_analyze_df, human_texts, dataset, 'human', language)
+        # _save_basic_result(data_analyze_df, machine_texts, dataset, 'machine', language)
+        # # --------------------------------------------------------------------------------------------------------------
 
         # # --------------------------------------------------------------------------------------------------------------
         # # N-gram distinct
@@ -104,6 +103,98 @@ def main():
         # _save_distinct_result(human_result, data_analyze_df, dataset, language, 'human')
         # _save_distinct_result(machine_result, data_analyze_df, dataset, language, 'machine')
         # # --------------------------------------------------------------------------------------------------------------
+
+        # # --------------------------------------------------------------------------------------------------------------
+        # # pos tagging distribution
+        # # --------------------------------------------------------------------------------------------------------------
+        # text_analyzer = TextAnalyzer(do_lower=True,
+        #                              language=language,
+        #                              load_spacy_model=True,
+        #                              dump_spacy_result=True)
+        # # parse_choices = ('pos', 'dep', 'ner')
+        # parse_choices = ('pos', 'dep', 'ner')
+        # temp_debug_N = 2000
+        # for parse_choice in parse_choices:
+        #     # human
+        #     parse_result = text_analyzer.load_parsed_texts_by_spacy(human_texts[:temp_debug_N], parse_choice)
+        #     save_path = os.path.join(f'../result/static_data_analysis/{dataset}_{parse_choice}_human.json')
+        #     load_save_json(save_path, 'save', data=parse_result)
+        #     # machine
+        #     parse_result = text_analyzer.load_parsed_texts_by_spacy(machine_texts[:temp_debug_N], parse_choice)
+        #     save_path = os.path.join(f'../result/static_data_analysis/{dataset}_{parse_choice}_machine.json')
+        #     load_save_json(save_path, 'save', data=parse_result)
+        # # --------------------------------------------------------------------------------------------------------------
+
+        # # --------------------------------------------------------------------------------------------------------------
+        # # analyse stopwords
+        # # --------------------------------------------------------------------------------------------------------------
+        # stopword_sen_ratio_df = {'value': [], 'language': [], 'author': []}
+        # text_analyzer = TextAnalyzer(do_lower=True,
+        #                              language=language)
+        # human_stopword_sen_ratio, human_stopwords_ratio = text_analyzer.analyse_stopwords(human_texts)
+        # machine_stopword_sen_ratio, machine_stopwords_ratio = text_analyzer.analyse_stopwords(machine_texts)
+        #
+        # stopword_sen_ratio_df['value'] = human_stopword_sen_ratio + machine_stopword_sen_ratio
+        # stopword_sen_ratio_df['language'] = [language for _ in human_stopword_sen_ratio] + [language for _ in
+        #                                                                                     machine_stopword_sen_ratio]
+        # stopword_sen_ratio_df['author'] = ['human' for _ in human_stopword_sen_ratio] + ['machine' for _ in
+        #                                                                                  machine_stopword_sen_ratio]
+        # stopword_sen_ratio_df = pd.DataFrame(stopword_sen_ratio_df)
+        # stopword_sen_ratio_df_save_path = f'../result/static_data_analysis/{dataset}_stopword_sen_ratio.csv'
+        # stopword_sen_ratio_df.to_csv(stopword_sen_ratio_df_save_path, index=False)
+        # print(f"save stopword_sen_ratio_df to {stopword_sen_ratio_df_save_path}")
+        #
+        # # ---
+        # stopword_ratio_df = {'value': [], 'stopword': [], 'language': [], 'author': []}
+        # human_stopwords_ratio = sorted(human_stopwords_ratio.items(), key=lambda x: x[1], reverse=True)
+        # stopwords = [x[0] for x in human_stopwords_ratio]
+        # human_stopword_ratios = [x[1] for x in human_stopwords_ratio]
+        # machine_stopword_ratios = [machine_stopwords_ratio.get(x, 0.0) for x in stopwords]
+        # stopword_ratio_df['value'] = human_stopword_ratios + machine_stopword_ratios
+        # stopword_ratio_df['stopword'] = stopwords + stopwords
+        # stopword_ratio_df['index_i'] = list(range(len(stopwords))) + list(range(len(stopwords)))
+        # stopword_ratio_df['language'] = [language for _ in human_stopword_ratios] + [language for _ in
+        #                                                                              machine_stopword_ratios]
+        # stopword_ratio_df['author'] = ['human' for _ in human_stopword_ratios] + ['machine' for _ in
+        #                                                                           machine_stopword_ratios]
+        # stopword_ratio_df_save_path = f'../result/static_data_analysis/{dataset}_stopword_ratio.csv'
+        # stopword_ratio_df = pd.DataFrame(stopword_ratio_df)
+        # stopword_ratio_df.to_csv(stopword_ratio_df_save_path, index=False)
+        # print(f"Save stopword_ratio_df_save_path to {stopword_ratio_df_save_path}")
+        # # --------------------------------------------------------------------------------------------------------------
+
+        # --------------------------------------------------------------------------------------------------------------
+        # analyse concreteness
+        # --------------------------------------------------------------------------------------------------------------
+        if language != 'en':
+            continue
+        else:
+            debug_N = 100
+            concreteness_df = {'value': [], 'language': [], 'author': [], 'pos': []}
+            text_analyzer = TextAnalyzer(do_lower=True,
+                                         language=language,
+                                         load_spacy_model=True)
+            human_concreteness_dict = text_analyzer.analyse_concreteness(human_texts[:debug_N])
+            machine_concreteness_dict = text_analyzer.analyse_concreteness(machine_texts[:debug_N])
+
+            for pos, value in human_concreteness_dict.items():
+                concreteness_df['value'].extend(value)
+                concreteness_df['language'].extend([language for _ in value])
+                concreteness_df['author'].extend(['human' for _ in value])
+                concreteness_df['pos'].extend([pos for _ in value])
+
+            for pos, value in machine_concreteness_dict.items():
+                concreteness_df['value'].extend(value)
+                concreteness_df['language'].extend([language for _ in value])
+                concreteness_df['author'].extend(['machine' for _ in value])
+                concreteness_df['pos'].extend([pos for _ in value])
+            concreteness_df = pd.DataFrame(concreteness_df)
+            concreteness_df_save_path = f'../result/static_data_analysis/{dataset}_concreteness.csv'
+            concreteness_df.to_csv(concreteness_df_save_path, index=False)
+            print(f"Save concreteness_df to {concreteness_df_save_path}")
+        # --------------------------------------------------------------------------------------------------------------
+
+    ipdb.set_trace()
 
     data_analyze_df = pd.DataFrame(data_analyze_df)
     print(data_analyze_df)

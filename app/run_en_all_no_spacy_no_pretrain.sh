@@ -1,23 +1,12 @@
 
 
 # RUN PRETRAIN EN_GROVER
-# 188430
-# bash run_en_all_no_spacy.sh 'en_grover'         0 0
+#
+# CUDA_VISIBLE_DEVICES=0 bash run_en_all_no_spacy_no_pretrain.sh 'en_grover'         0 1
 
 # RUN PRETRAIN en_writing_prompt
 # 188431
-# bash run_en_all_no_spacy.sh 'en_writing_prompt' 0 0
-
-
-# Grover
-# bash train_on_en.sh 'en_grover' '16 256 1024 0' 1 0 0 15 1 'reorder_shuffle char_deduplicate'
-# bash train_on_en.sh 'en_grover' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_low2high'
-# bash train_on_en.sh 'en_grover' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_high2low'
-
-# en_writing_prompt
-# bash train_on_en.sh 'en_writing_prompt' '16 256 1024 0' 1 0 0 15 1 'reorder_shuffle char_deduplicate'
-# bash train_on_en.sh 'en_writing_prompt' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_low2high'  # a8c02b65
-# bash train_on_en.sh 'en_writing_prompt' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_high2low'
+# CUDA_VISIBLE_DEVICES=1 bash run_en_all_no_spacy_no_pretrain.sh 'en_writing_prompt' 0 1
 
 dataset_name=${1:-0}
 is_debug=${2:-0}
