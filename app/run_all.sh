@@ -27,13 +27,19 @@ bash train_on_cn_novel_likelihood_rank.sh             '16 256 1024 0' 1 0 1 15
 #repeat=${3:-1}
 #semantic_change=${4:-1}
 
-# check freq gap
-bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64' 0 15 'rm_chars_in_freq'  'cn_novel_5billion' 'cn_roberta' # 0
-bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64' 0 15 'rm_chars_out_freq' 'cn_novel_5billion' 'cn_roberta' # 1
-bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64' 0 15 'rm_chars_in_freq'  'en_grover' 'en_roberta' # 2
-bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64' 0 15 'rm_chars_out_freq' 'en_grover' 'en_roberta' # 3
-bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64' 0 15 'rm_chars_in_freq'  'en_writing_prompt' 'en_roberta' # 4
-bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64' 0 15 'rm_chars_out_freq' 'en_writing_prompt' 'en_roberta' # 5
+# debug
+bash train_on_cn_novel_freq_gaps.sh                   '50 100 200 400 800 1600' 1 1 'rm_chars_in_freq'  'en_grover'         'en_roberta'
+bash train_on_cn_novel_freq_gaps.sh                   '50 100 200 400 800 1600' 1 1 'rm_chars_out_freq' 'en_grover'         'en_roberta'
+bash train_on_cn_novel_freq_gaps.sh                   '10 20 40 80 160 320' 1 1    'rm_chars_in_freq'  'en_writing_prompt' 'en_roberta'
+bash train_on_cn_novel_freq_gaps.sh                   '10 20 40 80 160 320' 1 1    'rm_chars_out_freq' 'en_writing_prompt' 'en_roberta'
+
+# check freq gap, 下面的这几个都在跑了 12-24
+bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64 128 256' 0 15 'rm_chars_in_freq'  'cn_novel_5billion' 'cn_roberta' # 0
+bash train_on_cn_novel_freq_gaps.sh                   '8 16 32 64 128 256' 0 15 'rm_chars_out_freq' 'cn_novel_5billion' 'cn_roberta' # 1
+bash train_on_cn_novel_freq_gaps.sh                   '50 100 200 400 800 1600' 0 15 'rm_chars_in_freq'  'en_grover' 'en_roberta' # 2
+bash train_on_cn_novel_freq_gaps.sh                   '50 100 200 400 800 1600' 0 15 'rm_chars_out_freq' 'en_grover' 'en_roberta' # 3
+bash train_on_cn_novel_freq_gaps.sh                   '10 20 40 80 160 320' 0 15 'rm_chars_in_freq'  'en_writing_prompt' 'en_roberta' # 4
+bash train_on_cn_novel_freq_gaps.sh                   '10 20 40 80 160 320' 0 15 'rm_chars_out_freq' 'en_writing_prompt' 'en_roberta' # 5
 ## non pre-train model
 #bash train_on_cn_novel_reorder_shuffle.sh             '0' 1 0 1 5
 #bash train_on_cn_novel_char_deduplicate.sh            '0' 1 0 1 5

@@ -33,6 +33,7 @@ bash train_on_en.sh $dataset_name '0' 1 $is_debug $re_init_weights $repeat 1 'po
 bash train_on_en.sh $dataset_name '0' 1 $is_debug $re_init_weights $repeat 1 'constit'
 bash train_on_en.sh $dataset_name '0' 1 $is_debug $re_init_weights $repeat 1 'ner'
 
+bash train_on_en.sh $dataset_name $char_freq_ranges 1 $is_debug $re_init_weights $repeat 1 'None'
 bash train_on_en.sh $dataset_name $char_freq_ranges 1 $is_debug $re_init_weights $repeat 1 'char_deduplicate'
 bash train_on_en.sh $dataset_name $char_freq_ranges 1 $is_debug $re_init_weights $repeat 1 'reorder_shuffle'
 bash train_on_en.sh $dataset_name $char_freq_ranges 1 $is_debug $re_init_weights $repeat 1 'reorder_shuffle char_deduplicate'

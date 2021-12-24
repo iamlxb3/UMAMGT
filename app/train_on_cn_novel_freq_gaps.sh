@@ -10,7 +10,7 @@ semantic_change=${4:-1}
 dataset_name=${5:-1}
 classifier_name=${6:-1}
 
-data_dir=../data/5billion
+data_dir=../data/$dataset_name
 save_dir=../result/
 char_freq_txt_path=../data/$dataset_name/sort_char.txt
 

@@ -1,5 +1,6 @@
 import ipdb
 import os
+import math
 import benepar
 import spacy
 import hashlib
@@ -24,11 +25,11 @@ class TextAnalyzer:
 
         if load_spacy_model:
             if language == 'cn':
-                self.spacy_parser = spacy.load("zh_core_web_sm")  # zh_core_web_trf
+                self.spacy_parser = spacy.load("zh_core_web_trf")  # zh_core_web_trf
                 benepar_model = 'benepar_zh2'
             elif language == 'en':
                 benepar.download('benepar_en3')
-                self.spacy_parser = spacy.load("en_core_web_sm")  # en_core_web_trf
+                self.spacy_parser = spacy.load("en_core_web_trf")  # en_core_web_trf
                 benepar_model = 'benepar_en3'
             else:
                 raise NotImplementedError
@@ -39,7 +40,7 @@ class TextAnalyzer:
         else:
             self.spacy_parser = None
 
-    def compute_ngram_from_file(self, file_path):
+    def compute_ngram_distinct_from_file(self, file_path):
         texts = []
         with open(file_path, 'r') as f:
             for line in f:
@@ -55,7 +56,7 @@ class TextAnalyzer:
                 if self.do_lower:
                     text = text.lower()
                 sen_ngrams = compute_ngrams(text.split(), n_gram)
-                sen_ngrams = [x[0] for x in sen_ngrams]
+                sen_ngrams = [''.join(x) for x in sen_ngrams]
                 try:
                     distinct_value.append(len(set(sen_ngrams)) / len(sen_ngrams))
                     # distinct_value.append(len(set(sen_ngrams)) / len(text.split()))
@@ -66,6 +67,23 @@ class TextAnalyzer:
             result.append((n_gram, avg_distinct_value))
         return result
 
+    def compute_ngram(self, texts, n_gram):
+        n_gram_freq_dict = collections.defaultdict(lambda: 0)
+        n_gram_idf_dict = collections.defaultdict(lambda: 0)
+        for text in texts:
+            if self.do_lower:
+                text = text.lower()
+                sen_ngrams = compute_ngrams(text.split(), n_gram)
+                sen_ngrams = [''.join(x) for x in sen_ngrams]
+
+                for x in set(sen_ngrams):
+                    n_gram_idf_dict[x] += 1
+
+                for x in sen_ngrams:
+                    n_gram_freq_dict[x] += 1
+        n_gram_idf_dict = {k: math.log(len(texts) / v) for k, v in n_gram_idf_dict.items()}
+        return n_gram_freq_dict, n_gram_idf_dict
+
     def analyse_concreteness(self, texts):
         concreteness = pd.read_csv('../static/Concreteness_ratings_Brysbaert_et_al_BRM.csv')
         words_concreteness = dict(zip(concreteness['Word'].values, concreteness['Conc.M'].values))
@@ -74,15 +92,26 @@ class TextAnalyzer:
 
         concreteness_dict = collections.defaultdict(lambda: [])
         for text in tqdm(texts, total=len(texts)):
+
+            if self.do_lower:
+                text = text.lower()
+
             text_pickle_path, to_parse_text = self._pickle_path_for_spacy(text, 'pos', 'text_analyzer2')
+
             token_pickle_path = self._get_token_pickle_path(text_pickle_path)
             if os.path.isfile(text_pickle_path) and os.path.isfile(token_pickle_path):
-                pos_tags, tokens = pickle.load(open(text_pickle_path, 'rb')), pickle.load(open(token_pickle_path, 'rb'))
+                pos_tags, tokens = pickle.load(open(text_pickle_path, 'rb')), pickle.load(
+                    open(token_pickle_path, 'rb'))
             else:
-                pos_tags, tokens = self._spacy_parse_text(to_parse_text, 'pos', text_pickle_path,
-                                                          return_token=True,
-                                                          dump_res=True,
-                                                          dump_token=True)
+                spacy_parse_result = self._spacy_parse_text(to_parse_text, 'pos', text_pickle_path,
+                                                            return_token=True,
+                                                            dump_res=True,
+                                                            dump_token=True)
+                if spacy_parse_result is not None:
+                    pos_tags, tokens = spacy_parse_result
+                else:
+                    continue
+
             concreteness_tmp_dict = collections.defaultdict(lambda: [])
 
             for pos_tag, token in zip(pos_tags, tokens):

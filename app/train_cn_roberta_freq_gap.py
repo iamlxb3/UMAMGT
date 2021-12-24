@@ -11,7 +11,7 @@ sys.path.append('..')
 
 from core.task import StoryTuringTest
 from core.utils import load_save_json
-from core.exp_record import ExpRecorder
+from core.exp_record import ExpRecorderFreqGap
 from core.semantic_modifier import SemanticModifier
 from exp_config import TRAIN_CONFIG, TRAIN_DEBUG_CONFIG, SYSTEM_CONFIG, SEED_OFFSET, TEST_PERCENT, VAL_PERCENT, \
     MAX_SEQ_LENGTH
@@ -121,7 +121,7 @@ def main():
     origin_all_indices = np.arange(0, len(whole_texts))
 
     # (1.) init experiment recorder
-    exp_recorder = ExpRecorder()
+    exp_recorder = ExpRecorderFreqGap()
 
     # (2.) TODO, maybe load model parameters
     for char_freq_range in char_freq_ranges:
@@ -158,12 +158,21 @@ def main():
                 train_texts = semantic_modifier.rm_chars_in_freq(train_texts, char_freq_range)
                 val_texts = semantic_modifier.rm_chars_in_freq(val_texts, char_freq_range)
                 test_texts = semantic_modifier.rm_chars_in_freq(test_texts, char_freq_range)
+                kept_char_ratio = 1 - char_freq_range / len(semantic_modifier.char_freq_rank)
             elif semantic_change_str == 'rm_chars_out_freq':
                 train_texts = semantic_modifier.rm_chars_out_freq(train_texts, char_freq_range)
                 val_texts = semantic_modifier.rm_chars_out_freq(val_texts, char_freq_range)
                 test_texts = semantic_modifier.rm_chars_out_freq(test_texts, char_freq_range)
+                kept_char_ratio = char_freq_range / len(semantic_modifier.char_freq_rank)
             else:
                 raise NotImplementedError
+
+            # # 0.0014267879436418763
+            # ipdb.set_trace()
+            # compute average_valid_length
+            random_texts = random.sample(train_texts, 100)
+            text_origin_len = np.average([len(x.split()) for x in random_texts])
+            text_valid_len = np.average([len([y for y in x.split() if y != '[MASK]']) for x in random_texts])
 
             train_dataset = story_turing_test.create_dataset(train_texts, train_labels, max_length=MAX_SEQ_LENGTH)
             val_dataset = story_turing_test.create_dataset(val_texts, val_labels, max_length=MAX_SEQ_LENGTH)
@@ -225,7 +234,10 @@ def main():
                                                test_result['test_loss'],
                                                train_dataset.size,
                                                val_dataset.size,
-                                               test_dataset.size)
+                                               test_dataset.size,
+                                               kept_char_ratio,
+                                               text_origin_len,
+                                               text_valid_len)
 
             # remove temp save dir
             shutil.rmtree(tmp_ckpts_dir)
