@@ -68,23 +68,23 @@ def compute_bert_outputs(model_bert, embedding_output, attention_mask, model_nam
 
 class BertModelWrapper(nn.Module):
 
-    def __init__(self, model, model_name='bert'):
+    def __init__(self, model, model_type='bert'):
         super(BertModelWrapper, self).__init__()
         self.model = model
         self.model.eval()
-        self.model_name = model_name
+        self.model_type = model_type
         self.model_body = list(model.children())[0]
 
-        if model_name == 'bert':
+        if model_type == 'bert':
             self.classifier_head = nn.Sequential(*list(model.children())[1:])
         else:
             self.classifier_head = list(model.children())[1]
 
     def forward(self, embeddings, attention_mask=None, encoded_inputs=None):
 
-        outputs = compute_bert_outputs(self.model_body, embeddings, attention_mask, self.model_name)
+        outputs = compute_bert_outputs(self.model_body, embeddings, attention_mask, self.model_type)
 
-        if self.model_name == 'bert':
+        if self.model_type == 'bert':
             encoder_output = outputs[1]
         else:
             encoder_output = outputs[0]

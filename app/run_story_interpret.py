@@ -25,7 +25,7 @@ def args_parse():
     parser.add_argument('--model_dir', type=str, required=True)
     parser.add_argument('--ig_n_steps', type=int, default=50)
     parser.add_argument('--max_text_length', type=int)
-    parser.add_argument('--model_name', type=str, default='bert')
+    parser.add_argument('--model_type', type=str, default='bert')
     args = parser.parse_args()
     return args
 
@@ -38,17 +38,16 @@ def main():
     data_dir = args.data_dir
     ig_n_steps = args.ig_n_steps
     max_text_length = args.max_text_length
-    model_name = args.model_name
+    model_type = args.model_type
     dataset_name = ntpath.basename(data_dir)
     language = ntpath.basename(dataset_name).split('_')[0]
 
     seed_everything(1)
-    interpret_all_labels = True
 
     if not debug_N:
         debug_N = None
 
-    save_base_name = f'../result/interpret/{dataset_name}_{ntpath.basename(model_dir)}_text_len_{max_text_length}_{interpret_all_labels}'
+    save_base_name = f'../result/interpret/{dataset_name}_{ntpath.basename(model_dir)}_text_len_{max_text_length}'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -62,7 +61,7 @@ def main():
         raise NotImplementedError
     tokenizer.model_max_length = max_text_length
 
-    roberta = BertModelWrapper(roberta, model_name=model_name).to(device)
+    roberta = BertModelWrapper(roberta, model_type=model_type).to(device)
 
     interpreter = StoryInterpreter(roberta,
                                    tokenizer,

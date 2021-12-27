@@ -1,5 +1,6 @@
 # debug
 # bash save_model_for_interpret.sh cn_novel_5billion cn_roberta 1
+# bash save_model_for_interpret.sh en_grover en_roberta 1
 
 dataset_name=${1:-0}
 classifier_name=${2:-0}
@@ -8,7 +9,7 @@ is_debug=${3:-0}
 # model_save_dir
 data_dir=../data/$dataset_name
 char_freq_txt_path=../data/$dataset_name/sort_char.txt
-model_save_dir=../model_ckpts/"$dataset_name"_"$classifier_name"_debug_"$is_debug"
+model_save_dir=../model_ckpts/interpret_"$dataset_name"_"$classifier_name"_debug_"$is_debug"
 
 python3.6 train_roberta.py --classifier_name $classifier_name \
                               --dataset_name $dataset_name \

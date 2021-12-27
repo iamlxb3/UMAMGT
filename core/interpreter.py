@@ -12,7 +12,7 @@ from captum.attr import visualization
 from captum.attr import LayerIntegratedGradients, TokenReferenceBase
 
 
-def compute_attributions(attributions, tokens):
+def compute_attributions(attributions):
     attributions = attributions.sum(dim=1)
     attributions = attributions / torch.norm(attributions)
     attributions = attributions.numpy()
@@ -26,15 +26,21 @@ class StoryInterpreter:
                  device,
                  n_steps=50,
                  save_base_name='',
-                 correct_label_only=True
+                 correct_label_only=True,
+                 use_pad_baseline=True
                  ):
         self.model = model
         self.device = device
         self.tokenizer = tokenizer
         self.ig = IntegratedGradients(model)
         self.vis_data_records_ig = []
-        self.interpret_df = {'token': [], 'label1_attr_score': [], 'sen_len': [],
-                             'predict_score': [], 'label': [], 'delta': []}
+        self.interpret_df = {'token': [],
+                             'label1_attr_score': [],
+                             'sen_len': [],
+                             'sen_i': [],
+                             'predict_score': [],
+                             'label': [],
+                             'delta': []}
         self.model.eval()
         self.model.zero_grad()
         self.n_steps = n_steps
@@ -44,7 +50,7 @@ class StoryInterpreter:
         else:
             self.vis_record_save_path = ''
             self.interpret_df_save_path = ''
-
+        self.use_pad_baseline = use_pad_baseline
         self.correct_label_only = correct_label_only
 
     def interpret_dataloder(self,
@@ -94,14 +100,23 @@ class StoryInterpreter:
         # attributions_ig shape: batch x max_seq_len x 768
         # print(f"Start computing attribution...")
         all_1_labels = torch.tensor([1 for _ in predict_labels]).to(self.device)
+        # baselines=all_pad_embedding,
 
-        label1_attributions_ig, label1_delta = self.ig.attribute(inputs=input_embedding,
-                                                                 baselines=all_pad_embedding,
-                                                                 target=all_1_labels,
-                                                                 n_steps=self.n_steps,
-                                                                 return_convergence_delta=True)
+        if self.use_pad_baseline:
+            # TODO: 这里目前的batch_size还是设定为1比较稳妥，因为attention_mask的存在，当时batch_size不同时计算出来的值略有不同
+            label1_attributions_ig, label1_delta = self.ig.attribute(inputs=input_embedding,
+                                                                     target=all_1_labels,
+                                                                     baselines=all_pad_embedding,
+                                                                     n_steps=self.n_steps,
+                                                                     return_convergence_delta=True)
+        else:
+            label1_attributions_ig, label1_delta = self.ig.attribute(inputs=input_embedding,
+                                                                     target=all_1_labels,
+                                                                     n_steps=self.n_steps,
+                                                                     return_convergence_delta=True)
         label1_attributions_ig = label1_attributions_ig.detach().cpu()
         label1_delta = label1_delta.detach().cpu()
+        # print("label1_delta: ", label1_delta)
         del input_embedding
         del all_pad_embedding
 
@@ -109,8 +124,10 @@ class StoryInterpreter:
             tokens = self.tokenizer.convert_ids_to_tokens(input_id, skip_special_tokens=False)
             tokens = [x.replace('Ġ', '') for x in tokens]
             tokens = np.array(tokens)
-            ignore_indices = list(np.where(tokens == '[CLS]')[0]) + list(np.where(tokens == '[SEP]')[0]) \
-                             + list(np.where(tokens == '[PAD]')[0])
+            # label1_attribution = label1_attributions_ig[i]
+            ignore_indices = list(np.where(tokens == self.tokenizer.cls_token)[0]) \
+                             + list(np.where(tokens == self.tokenizer.sep_token)[0]) \
+                             + list(np.where(tokens == self.tokenizer.pad_token)[0])
             keep_mask = np.ones_like(tokens, dtype=bool)
             keep_mask[ignore_indices] = False
             tokens = tokens[keep_mask]
@@ -126,13 +143,15 @@ class StoryInterpreter:
 
                     # 这里的attribution是做过normalize，但是，不是做的softmax，所以sum加起来不是1
                     # TODO: 需要思考下这里的attribution score和长度有没有关系
-                    label1_attribution_sum = compute_attributions(label1_attribution, tokens)
-                    delta = label1_delta
+                    label1_attribution_sum = compute_attributions(label1_attribution)
+
+                    delta = label1_delta[i]
                     assert len(label1_attribution_sum) == len(tokens)
                     for attr_score, token in zip(label1_attribution_sum, tokens):
                         self.interpret_df['token'].append(token)
                         self.interpret_df['label1_attr_score'].append(float(attr_score))
                         self.interpret_df['sen_len'].append(len(tokens))
+                        self.interpret_df['sen_i'].append(i)
                         self.interpret_df['predict_score'].append(float(predict_prob))
                         self.interpret_df['label'].append(actual_ind)
                         self.interpret_df['delta'].append(float(delta))
