@@ -70,7 +70,9 @@ def args_parse():
                         required=True)
     parser.add_argument('--is_change_apply_to_test', type=int, default=0)
     parser.add_argument('--is_change_apply_to_train', type=int, default=1)
+    parser.add_argument('--is_save_record', type=int, default=1)
     parser.add_argument('--re_init_weights', type=int, default=0)
+    parser.add_argument('--model_save_dir', type=str)
     args = parser.parse_args()
     return args
 
@@ -93,6 +95,8 @@ def main():
     char_freq_ranges = args.char_freq_ranges
     save_dir = args.save_dir
     char_freq_txt_path = args.char_freq_txt_path
+    model_save_dir = args.model_save_dir
+    is_save_record = args.is_save_record
     save_dir = os.path.abspath(save_dir)
 
     for x in {'likelihood_rank', 'pos', 'dep'}:
@@ -213,12 +217,12 @@ def main():
 
             # apply semantic change
             if is_change_apply_to_train:
-                if semantic_change != ['None']:
+                if semantic_change != ['None'] or char_freq_range != 0:
                     train_texts = semantic_modifier.change_texts(train_texts, char_freq_range)
                     val_texts = semantic_modifier.change_texts(val_texts, char_freq_range)
 
             if is_change_apply_to_test:
-                if semantic_change != ['None']:
+                if semantic_change != ['None'] or char_freq_range != 0:
                     test_texts = semantic_modifier.change_texts(test_texts, char_freq_range)
 
             train_dataset = story_turing_test.create_dataset(train_texts, train_labels, max_length=MAX_SEQ_LENGTH)
@@ -301,15 +305,14 @@ def main():
             shutil.rmtree(tmp_ckpts_dir)
             print(f"Remove temp dir {tmp_ckpts_dir} SUCCESS!!!!")
 
-    exp_recorder.save_to_disk(save_path)
+    if is_save_record:
+        exp_recorder.save_to_disk(save_path)
 
-    # # Save model
-    # dataset_name = ntpath.basename(data_dir)
-    # if model_save_dir is None:
-    #     model_save_dir = f"../model_ckpts/cn-roberta-story-turning-train_{train_size}-seq_{seq_len}_{dataset_name}"
-    # model_save_dir = os.path.abspath(model_save_dir)
-    # model.save_pretrained(model_save_dir)
-    # print(f"Save best model ckpt to {model_save_dir}")
+    # Save model
+    if model_save_dir is not None:
+        model_save_dir = os.path.abspath(model_save_dir)
+        model.save_pretrained(model_save_dir)
+        print(f"Save best model ckpt to {model_save_dir}")
     #
     # train_result_save_path = os.path.join(model_save_dir, 'train_result.json')
     # test_result_save_path = os.path.join(model_save_dir, 'test_result.json')

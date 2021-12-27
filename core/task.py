@@ -57,6 +57,8 @@ class StoryTuringTest:
             test_rank_data_path = os.path.join(data_dir, 'valid_rank.tgt')
             train_ranks = self._read_text_rank(train_rank_data_path)
 
+            assert len(train_ranks) == len(train_texts)
+
             new_train_texts = []
             for x1, x2 in zip(train_texts, train_ranks):
                 new_train_texts.append((x1, x2))
@@ -64,6 +66,7 @@ class StoryTuringTest:
 
             if test_texts:
                 test_ranks = self._read_text_rank(test_rank_data_path)
+                assert len(test_ranks) == len(test_texts)
                 new_test_ranks = []
                 for x1, x2 in zip(test_texts, test_ranks):
                     new_test_ranks.append((x1, x2))

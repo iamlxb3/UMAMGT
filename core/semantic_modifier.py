@@ -75,13 +75,16 @@ class SemanticModifier:
 
                 if 'likelihood_rank' in self.semantic_change:
                     origin_text, text_rank = text
-                    split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in origin_text.split()]
+                    min_len = min(len(origin_text.split()), len(text_rank.split()))
+                    origin_text_split = origin_text.split()[:min_len]
+                    text_rank_split = text_rank.split()[:min_len]
+                    # TODO: 这两个的长度当时没控制好
+                    split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in origin_text_split]
                     masked_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
                     mask_indices = np.where(np.array(masked_text) == '[MASK]')[0]
-                    text_rank = np.array(text_rank.split(' '), dtype='U6')
+                    text_rank = np.array(text_rank_split, dtype='U6')
                     text_rank[mask_indices] = '[MASK]'
                     split_text = text_rank.tolist()
-
                     # assert len(origin_text.split()) == len(split_text)
                 else:
                     split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in text.split(' ')]
