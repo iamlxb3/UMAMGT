@@ -65,7 +65,9 @@ def args_parse():
                                  'pos',
                                  'dep',
                                  'constit',  # phrase structure tree, constituency tree,
-                                 'ner'
+                                 'ner',
+                                 'use_stopword',
+                                 'not_use_stopword'
                                  ],
                         required=True)
     parser.add_argument('--is_change_apply_to_test', type=int, default=0)

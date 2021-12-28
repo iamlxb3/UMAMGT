@@ -4,6 +4,7 @@ import copy
 import random
 import numpy as np
 import glob
+import jieba
 import re
 import spacy
 from tqdm import tqdm
@@ -46,6 +47,23 @@ class SemanticModifier:
         else:
             self.spacy_parser = None
 
+        if 'use_stopword' in self.semantic_change or 'not_use_stopword' in self.semantic_change:
+            if language == 'cn':
+                stopword_path = '../static/cn_baidu_stopwords'
+            elif language == 'en':
+                stopword_path = '../static/en_nltk_baidu_stopwords'
+            else:
+                raise NotImplementedError
+
+            self.stopwords = set()
+            with open(stopword_path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        self.stopwords.add(line)
+        else:
+            self.stopwords = None
+
     def rm_chars_out_freq(self, texts, char_freq_range):
         processed_texts = []
         for text in texts:
@@ -63,6 +81,16 @@ class SemanticModifier:
             split_text = [x if freq > char_freq_range else '[MASK]' for (x, freq) in split_text_order]
             processed_texts.append(' '.join(split_text))
         return processed_texts
+
+    def _cn_stopword_split(self, split_text):
+        new_split_text = []
+        for x in split_text:
+            if x == '[MASK]':
+                new_split_text.append(x)
+            else:
+                for x_ in list(x):
+                    new_split_text.append(x_)
+        return new_split_text
 
     def change_texts(self, texts, char_freq_range):
         processed_texts = []
@@ -110,7 +138,30 @@ class SemanticModifier:
                 split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
                 split_text = sorted(split_text_order, key=lambda x: x[1], reverse=True)
                 split_text = [x[0] for x in split_text]
+            elif 'use_stopword' in self.semantic_change:
 
+                if self.language == 'cn':
+                    jieba_tokens = jieba.lcut(text.replace(' ', ''))
+                    split_text = [x if (x in self.stopwords) or (x.lower() in self.stopwords) else '[MASK]' for x in
+                                  jieba_tokens]
+                    split_text = self._cn_stopword_split(split_text)
+                elif self.language == 'en':
+                    split_text = [x if (x in self.stopwords) or (x.lower() in self.stopwords) else '[MASK]' for x in
+                                  split_text]
+                else:
+                    raise NotImplementedError
+
+            elif 'not_use_stopword' in self.semantic_change:
+                if self.language == 'cn':
+                    jieba_tokens = jieba.lcut(text.replace(' ', ''))
+                    split_text = [x if (x not in self.stopwords) and (x.lower() not in self.stopwords) else '[MASK]' for
+                                  x in jieba_tokens]
+                    split_text = self._cn_stopword_split(split_text)
+                elif self.language == 'en':
+                    split_text = [x if (x not in self.stopwords) and (x.lower() not in self.stopwords) else '[MASK]' for
+                                  x in split_text]
+                else:
+                    raise NotImplementedError
             if 'char_deduplicate' in self.semantic_change:
                 appear_set = set()
                 new_split_text = []

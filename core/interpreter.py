@@ -55,9 +55,10 @@ class StoryInterpreter:
 
     def interpret_dataloder(self,
                             dataloder):
-        for encoded_inputs in tqdm(dataloder, total=len(dataloder)):
+        for sample_i, encoded_inputs in tqdm(enumerate(dataloder), total=len(dataloder)):
             labels = encoded_inputs['labels']
-            self.interpret_encoded_inputs(encoded_inputs, labels)
+            assert labels.shape[0] == 1  # 目前只支持batch_size=1的情况
+            self.interpret_encoded_inputs(encoded_inputs, labels, sample_i)
         self.save_vis_records()
         self.save_interpret_df()
 
@@ -91,7 +92,8 @@ class StoryInterpreter:
 
     def interpret_encoded_inputs(self,
                                  encoded_inputs,
-                                 labels):
+                                 labels,
+                                 sample_i):
         self.model.zero_grad()
         predict_probs, predict_labels, input_embedding, all_pad_embedding = \
             self._predict_batch_token_input(encoded_inputs)
@@ -151,7 +153,7 @@ class StoryInterpreter:
                         self.interpret_df['token'].append(token)
                         self.interpret_df['label1_attr_score'].append(float(attr_score))
                         self.interpret_df['sen_len'].append(len(tokens))
-                        self.interpret_df['sen_i'].append(i)
+                        self.interpret_df['sen_i'].append(sample_i)
                         self.interpret_df['predict_score'].append(float(predict_prob))
                         self.interpret_df['label'].append(actual_ind)
                         self.interpret_df['delta'].append(float(delta))

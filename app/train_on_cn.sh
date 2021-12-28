@@ -1,6 +1,6 @@
-# bash train_on_en.sh en_grover '0' 1 1 0 1 1 'char_deduplicate'
-# bash train_on_en.sh en_grover '0' 1 1 0 1 1 'use_stopword'
-# bash train_on_en.sh en_grover '0' 1 0 0 1 1
+# debug-[pretrain]-[repeat1]:
+# bash train_on_cn.sh cn_novel_5billion '0' 1 1 0 1 1 'not_use_stopword'
+# bash train_on_cn.sh cn_novel_5billion '0' 1 0 0 1 1
 
 dataset_name=${1:-0}
 char_freq_ranges=${2:-0}
@@ -13,7 +13,7 @@ semantic_change=${8:-'None'}
 
 data_dir=../data/$dataset_name
 save_dir=../result/
-classifier_name=en_roberta
+classifier_name=cn_roberta
 char_freq_txt_path=../data/$dataset_name/sort_char.txt
 
 python3.6 train_roberta.py --classifier_name $classifier_name \

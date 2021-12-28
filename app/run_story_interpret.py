@@ -25,6 +25,7 @@ def args_parse():
     parser.add_argument('--model_dir', type=str, required=True)
     parser.add_argument('--ig_n_steps', type=int, default=50)
     parser.add_argument('--max_text_length', type=int)
+    parser.add_argument('--use_pad_baseline', type=int, default=1)
     parser.add_argument('--model_type', type=str, default='bert')
     args = parser.parse_args()
     return args
@@ -39,6 +40,8 @@ def main():
     ig_n_steps = args.ig_n_steps
     max_text_length = args.max_text_length
     model_type = args.model_type
+    use_pad_baseline = args.use_pad_baseline
+    use_pad_baseline = True if use_pad_baseline else False
     dataset_name = ntpath.basename(data_dir)
     language = ntpath.basename(dataset_name).split('_')[0]
 
@@ -47,7 +50,11 @@ def main():
     if not debug_N:
         debug_N = None
 
-    save_base_name = f'../result/interpret/{dataset_name}_{ntpath.basename(model_dir)}_text_len_{max_text_length}'
+    save_base_name = f'../result/interpret/{ntpath.basename(model_dir)}_text_len_{max_text_length}_debug_N_{debug_N}'
+    if use_pad_baseline:
+        save_base_name += '_use_pad_bs'
+    else:
+        save_base_name += '_use_all_zero_bs'
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -68,7 +75,8 @@ def main():
                                    device,
                                    n_steps=ig_n_steps,
                                    save_base_name=save_base_name,
-                                   correct_label_only=True
+                                   correct_label_only=True,
+                                   use_pad_baseline=use_pad_baseline
                                    )
 
     # sentences = ['测试1。阿斯顿撒大', '测试2，阿斯顿撒大', '测试3，阿斯顿撒大']

@@ -85,12 +85,12 @@ def main():
         language = dataset.split('_')[0]
         human_texts, machine_texts = _read_data(base_dir, dataset)
 
-        # # --------------------------------------------------------------------------------------------------------------
-        # # read basic
-        # # --------------------------------------------------------------------------------------------------------------
-        # _save_basic_result(data_analyze_df, human_texts, dataset, 'human', language)
-        # _save_basic_result(data_analyze_df, machine_texts, dataset, 'machine', language)
-        # # --------------------------------------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
+        # read basic
+        # --------------------------------------------------------------------------------------------------------------
+        _save_basic_result(data_analyze_df, human_texts, dataset, 'human', language)
+        _save_basic_result(data_analyze_df, machine_texts, dataset, 'machine', language)
+        # --------------------------------------------------------------------------------------------------------------
 
         # # --------------------------------------------------------------------------------------------------------------
         # # N-gram distinct
@@ -122,195 +122,195 @@ def main():
         #     load_save_json(save_path, 'save', data=parse_result)
         # # --------------------------------------------------------------------------------------------------------------
         #
-        # --------------------------------------------------------------------------------------------------------------
-        # analyse stopwords
-        # --------------------------------------------------------------------------------------------------------------
-        stopword_sen_ratio_df = {'value': [], 'language': [], 'author': []}
-        text_analyzer = TextAnalyzer(do_lower=True,
-                                     language=language)
-        human_stopword_sen_ratio, human_stopwords_ratio = text_analyzer.analyse_stopwords(human_texts)
-        machine_stopword_sen_ratio, machine_stopwords_ratio = text_analyzer.analyse_stopwords(machine_texts)
-
-        stopword_sen_ratio_df['value'] = human_stopword_sen_ratio + machine_stopword_sen_ratio
-        stopword_sen_ratio_df['language'] = [language for _ in human_stopword_sen_ratio] + [language for _ in
-                                                                                            machine_stopword_sen_ratio]
-        stopword_sen_ratio_df['author'] = ['human' for _ in human_stopword_sen_ratio] + ['machine' for _ in
-                                                                                         machine_stopword_sen_ratio]
-        stopword_sen_ratio_df = pd.DataFrame(stopword_sen_ratio_df)
-        stopword_sen_ratio_df_save_path = f'../result/static_data_analysis/{dataset}_stopword_sen_ratio.csv'
-        stopword_sen_ratio_df.to_csv(stopword_sen_ratio_df_save_path, index=False)
-        print(f"save stopword_sen_ratio_df to {stopword_sen_ratio_df_save_path}")
-
-        # ---
-        stopword_ratio_df = {'value': [], 'stopword': [], 'language': [], 'author': []}
-        human_stopwords_ratio = sorted(human_stopwords_ratio.items(), key=lambda x: x[1], reverse=True)
-        stopwords = [x[0] for x in human_stopwords_ratio]
-        human_stopword_ratios = [x[1] for x in human_stopwords_ratio]
-        machine_stopword_ratios = [machine_stopwords_ratio.get(x, 0.0) for x in stopwords]
-        stopword_ratio_df['value'] = human_stopword_ratios + machine_stopword_ratios
-        stopword_ratio_df['stopword'] = stopwords + stopwords
-        stopword_ratio_df['index_i'] = list(range(len(stopwords))) + list(range(len(stopwords)))
-        stopword_ratio_df['language'] = [language for _ in human_stopword_ratios] + [language for _ in
-                                                                                     machine_stopword_ratios]
-        stopword_ratio_df['author'] = ['human' for _ in human_stopword_ratios] + ['machine' for _ in
-                                                                                  machine_stopword_ratios]
-        stopword_ratio_df_save_path = f'../result/static_data_analysis/{dataset}_stopword_ratio.csv'
-        stopword_ratio_df = pd.DataFrame(stopword_ratio_df)
-        stopword_ratio_df.to_csv(stopword_ratio_df_save_path, index=False)
-        print(f"Save stopword_ratio_df_save_path to {stopword_ratio_df_save_path}")
-        # --------------------------------------------------------------------------------------------------------------
+        # # --------------------------------------------------------------------------------------------------------------
+        # # analyse stopwords
+        # # --------------------------------------------------------------------------------------------------------------
+        # stopword_sen_ratio_df = {'value': [], 'language': [], 'author': []}
+        # text_analyzer = TextAnalyzer(do_lower=True,
+        #                              language=language)
+        # human_stopword_sen_ratio, human_stopwords_ratio = text_analyzer.analyse_stopwords(human_texts)
+        # machine_stopword_sen_ratio, machine_stopwords_ratio = text_analyzer.analyse_stopwords(machine_texts)
         #
-        # --------------------------------------------------------------------------------------------------------------
-        # analyse concreteness
-        # --------------------------------------------------------------------------------------------------------------
-        if language != 'en':
-            continue
-        else:
-            debug_N = 999999999999
-            concreteness_df = {'value': [], 'language': [], 'author': [], 'pos': []}
-            text_analyzer = TextAnalyzer(do_lower=True,
-                                         language=language,
-                                         load_spacy_model=True)
-            human_concreteness_dict = text_analyzer.analyse_concreteness(human_texts[:debug_N])
-            machine_concreteness_dict = text_analyzer.analyse_concreteness(machine_texts[:debug_N])
-
-            for pos, value in human_concreteness_dict.items():
-                concreteness_df['value'].extend(value)
-                concreteness_df['language'].extend([language for _ in value])
-                concreteness_df['author'].extend(['human' for _ in value])
-                concreteness_df['pos'].extend([pos for _ in value])
-
-            for pos, value in machine_concreteness_dict.items():
-                concreteness_df['value'].extend(value)
-                concreteness_df['language'].extend([language for _ in value])
-                concreteness_df['author'].extend(['machine' for _ in value])
-                concreteness_df['pos'].extend([pos for _ in value])
-            concreteness_df = pd.DataFrame(concreteness_df)
-            concreteness_df_save_path = f'../result/static_data_analysis/{dataset}_concreteness.csv'
-            concreteness_df.to_csv(concreteness_df_save_path, index=False)
-            print(f"Save concreteness_df to {concreteness_df_save_path}")
-        # --------------------------------------------------------------------------------------------------------------
-
-        # --------------------------------------------------------------------------------------------------------------
-        # analyse N-gram overlap between human and machine generated texts / zipflaw
-        # --------------------------------------------------------------------------------------------------------------
-        debug_N = 999999999999
-        text_analyzer = TextAnalyzer(do_lower=True, language=language)
-        ngram_idf_df = {'value': [], 'value_name': [], 'token': [], 'author': [], 'index_i': [], 'n_gram': []}
-        n_gram_df = {'human_ngram': [], 'machine_ngram': [], 'overlap_ngram': [], 'total_ngram': [],
-                     'human_overlap_ratio': [], 'human_overlap_token_freq_ratio': [],
-                     'machine_overlap_ratio': [], 'machine_overlap_token_freq_ratio': [],
-                     'ngram': []}
-        zipflaw_df = {'rank': [], 'freq': [], 'token': [], 'author': [], 'n_gram': []}
-
-        ngram_idf_df_save_path = f'../result/static_data_analysis/{dataset}_ngram_idf.csv'
-        ngram_df_save_path = f'../result/static_data_analysis/{dataset}_ngram.csv'
-        zipflaw_df_save_path = f'../result/static_data_analysis/{dataset}_zipflaw.csv'
-
-        n_grams = (1, 2, 3)
-        for n_gram in n_grams:
-            human_n_gram_freq_dict, human_n_gram_idf_dict = text_analyzer.compute_ngram(human_texts[:debug_N],
-                                                                                        n_gram=n_gram)
-            machine_n_gram_freq_dict, machine_n_gram_idf_dict = text_analyzer.compute_ngram(machine_texts[:debug_N],
-                                                                                            n_gram=n_gram)
-
-            human_unique_tokens = set(human_n_gram_freq_dict.keys())
-            machine_unique_tokens = set(machine_n_gram_freq_dict.keys())
-            over_lap_ngram = human_unique_tokens.intersection(machine_unique_tokens)
-
-            # ---------------------------
-            # compute zipflaw
-            # ---------------------------
-            human_n_gram_freq = sorted(human_n_gram_freq_dict.items(), key=lambda x: x[1], reverse=True)
-            machine_n_gram_freq = sorted(machine_n_gram_freq_dict.items(), key=lambda x: x[1], reverse=True)
-
-            for i, (token, freq) in enumerate(human_n_gram_freq):
-                zipflaw_df['rank'].append(i)
-                zipflaw_df['freq'].append(math.log(freq))
-                zipflaw_df['token'].append(token)
-                zipflaw_df['author'].append('human')
-                zipflaw_df['n_gram'].append(n_gram)
-
-            for i, (token, freq) in enumerate(machine_n_gram_freq):
-                zipflaw_df['rank'].append(i)
-                zipflaw_df['freq'].append(math.log(freq))
-                zipflaw_df['token'].append(token)
-                zipflaw_df['author'].append('machine')
-                zipflaw_df['n_gram'].append(n_gram)
-            # ---------------------------
-
-            over_lap_ngram_for_idf = [(x, human_n_gram_idf_dict[x]) for x in over_lap_ngram]
-            over_lap_ngram_for_idf = sorted(over_lap_ngram_for_idf, key=lambda x: x[1])
-            for i, (ngram_token, _) in enumerate(over_lap_ngram_for_idf):
-                human_idf = human_n_gram_idf_dict[ngram_token]
-                machine_idf = machine_n_gram_idf_dict[ngram_token]
-                ngram_idf_df['value'].append(human_idf)
-                ngram_idf_df['value_name'].append('idf')
-                ngram_idf_df['token'].append(ngram_token)
-                ngram_idf_df['author'].append('human')
-                ngram_idf_df['index_i'].append(i)
-                ngram_idf_df['n_gram'].append(n_gram)
-
-                ngram_idf_df['value'].append(machine_idf)
-                ngram_idf_df['value_name'].append('idf')
-                ngram_idf_df['token'].append(ngram_token)
-                ngram_idf_df['author'].append('machine')
-                ngram_idf_df['index_i'].append(i)
-                ngram_idf_df['n_gram'].append(n_gram)
-
-            result_dict = {f'human_{n_gram}_gram_total': len(human_n_gram_freq_dict),
-                           f'machine_{n_gram}_gram_total': len(machine_n_gram_freq_dict),
-                           f'overlap_{n_gram}_gram': len(over_lap_ngram),
-                           f'total_{n_gram}_gram': len(human_unique_tokens.union(machine_unique_tokens))
-                           }
-            print(result_dict)
-
-            human_overlap_freq_count = 0
-            for token in human_unique_tokens:
-                if token in over_lap_ngram:
-                    human_overlap_freq_count += human_n_gram_freq_dict[token]
-            total_human_freq = np.sum(list(human_n_gram_freq_dict.values()))
-
-            machine_overlap_freq_count = 0
-            for token in machine_unique_tokens:
-                if token in over_lap_ngram:
-                    machine_overlap_freq_count += machine_n_gram_freq_dict[token]
-            total_machine_freq = np.sum(list(machine_n_gram_freq_dict.values()))
-            human_overlap_ratio = len(over_lap_ngram) / len(human_n_gram_freq_dict)
-            human_overlap_token_freq_ratio = human_overlap_freq_count / total_human_freq
-            machine_overlap_ratio = len(over_lap_ngram) / len(machine_n_gram_freq_dict)
-            machine_overlap_token_freq_ratio = machine_overlap_freq_count / total_machine_freq
-
-            # n_gram_df = {'human_ngram': [], 'machine_ngram': [], 'overlap_ngram': [], 'total_ngram': [], 'ngram': []}
-            #                      'human_overlap_ratio': [],'human_overlap_token_freq_ratio': [],
-            #                      'machine_overlap_ratio': [], 'machine_overlap_token_freq_ratio': [],
-            n_gram_df['human_ngram'].append(len(human_n_gram_freq_dict))
-            n_gram_df['machine_ngram'].append(len(machine_n_gram_freq_dict))
-            n_gram_df['overlap_ngram'].append(len(over_lap_ngram))
-            n_gram_df['total_ngram'].append(len(human_unique_tokens.union(machine_unique_tokens)))
-            n_gram_df['human_overlap_ratio'].append(human_overlap_ratio)
-            n_gram_df['human_overlap_token_freq_ratio'].append(human_overlap_token_freq_ratio)
-            n_gram_df['machine_overlap_ratio'].append(machine_overlap_ratio)
-            n_gram_df['machine_overlap_token_freq_ratio'].append(machine_overlap_token_freq_ratio)
-            n_gram_df['ngram'].append(n_gram)
-
-            print(f"[Human] Ngram-{n_gram}, overlap ratio / overlap token freq ratio:"
-                  f" {human_overlap_ratio} / {human_overlap_token_freq_ratio:.3f}")
-            print(
-                f"[Machine] Ngram-{n_gram}, overlap ratio / overlap token freq ratio:"
-                f" {machine_overlap_ratio} / {machine_overlap_token_freq_ratio:.3f}")
-
-        ngram_idf_df = pd.DataFrame(ngram_idf_df)
-        n_gram_df = pd.DataFrame(n_gram_df)
-        zipflaw_df = pd.DataFrame(zipflaw_df)
-        ngram_idf_df.to_csv(ngram_idf_df_save_path, index=False)
-        n_gram_df.to_csv(ngram_df_save_path, index=False)
-        zipflaw_df.to_csv(zipflaw_df_save_path, index=False)
-        print(f"Save ngram idf df to {ngram_idf_df}")
-        print(f"Save ngram df to {ngram_df_save_path}")
-        print(f"Save zipflaw_df to {zipflaw_df_save_path}")
-
-    # --------------------------------------------------------------------------------------------------------------
+        # stopword_sen_ratio_df['value'] = human_stopword_sen_ratio + machine_stopword_sen_ratio
+        # stopword_sen_ratio_df['language'] = [language for _ in human_stopword_sen_ratio] + [language for _ in
+        #                                                                                     machine_stopword_sen_ratio]
+        # stopword_sen_ratio_df['author'] = ['human' for _ in human_stopword_sen_ratio] + ['machine' for _ in
+        #                                                                                  machine_stopword_sen_ratio]
+        # stopword_sen_ratio_df = pd.DataFrame(stopword_sen_ratio_df)
+        # stopword_sen_ratio_df_save_path = f'../result/static_data_analysis/{dataset}_stopword_sen_ratio.csv'
+        # stopword_sen_ratio_df.to_csv(stopword_sen_ratio_df_save_path, index=False)
+        # print(f"save stopword_sen_ratio_df to {stopword_sen_ratio_df_save_path}")
+        #
+        # # ---
+        # stopword_ratio_df = {'value': [], 'stopword': [], 'language': [], 'author': []}
+        # human_stopwords_ratio = sorted(human_stopwords_ratio.items(), key=lambda x: x[1], reverse=True)
+        # stopwords = [x[0] for x in human_stopwords_ratio]
+        # human_stopword_ratios = [x[1] for x in human_stopwords_ratio]
+        # machine_stopword_ratios = [machine_stopwords_ratio.get(x, 0.0) for x in stopwords]
+        # stopword_ratio_df['value'] = human_stopword_ratios + machine_stopword_ratios
+        # stopword_ratio_df['stopword'] = stopwords + stopwords
+        # stopword_ratio_df['index_i'] = list(range(len(stopwords))) + list(range(len(stopwords)))
+        # stopword_ratio_df['language'] = [language for _ in human_stopword_ratios] + [language for _ in
+        #                                                                              machine_stopword_ratios]
+        # stopword_ratio_df['author'] = ['human' for _ in human_stopword_ratios] + ['machine' for _ in
+        #                                                                           machine_stopword_ratios]
+        # stopword_ratio_df_save_path = f'../result/static_data_analysis/{dataset}_stopword_ratio.csv'
+        # stopword_ratio_df = pd.DataFrame(stopword_ratio_df)
+        # stopword_ratio_df.to_csv(stopword_ratio_df_save_path, index=False)
+        # print(f"Save stopword_ratio_df_save_path to {stopword_ratio_df_save_path}")
+        # # --------------------------------------------------------------------------------------------------------------
+        #
+    #     # --------------------------------------------------------------------------------------------------------------
+    #     # analyse concreteness
+    #     # --------------------------------------------------------------------------------------------------------------
+    #     if language != 'en':
+    #         continue
+    #     else:
+    #         debug_N = 999999999999
+    #         concreteness_df = {'value': [], 'language': [], 'author': [], 'pos': []}
+    #         text_analyzer = TextAnalyzer(do_lower=True,
+    #                                      language=language,
+    #                                      load_spacy_model=True)
+    #         human_concreteness_dict = text_analyzer.analyse_concreteness(human_texts[:debug_N])
+    #         machine_concreteness_dict = text_analyzer.analyse_concreteness(machine_texts[:debug_N])
+    #
+    #         for pos, value in human_concreteness_dict.items():
+    #             concreteness_df['value'].extend(value)
+    #             concreteness_df['language'].extend([language for _ in value])
+    #             concreteness_df['author'].extend(['human' for _ in value])
+    #             concreteness_df['pos'].extend([pos for _ in value])
+    #
+    #         for pos, value in machine_concreteness_dict.items():
+    #             concreteness_df['value'].extend(value)
+    #             concreteness_df['language'].extend([language for _ in value])
+    #             concreteness_df['author'].extend(['machine' for _ in value])
+    #             concreteness_df['pos'].extend([pos for _ in value])
+    #         concreteness_df = pd.DataFrame(concreteness_df)
+    #         concreteness_df_save_path = f'../result/static_data_analysis/{dataset}_concreteness.csv'
+    #         concreteness_df.to_csv(concreteness_df_save_path, index=False)
+    #         print(f"Save concreteness_df to {concreteness_df_save_path}")
+    #     # --------------------------------------------------------------------------------------------------------------
+    #
+    #     # --------------------------------------------------------------------------------------------------------------
+    #     # analyse N-gram overlap between human and machine generated texts / zipflaw
+    #     # --------------------------------------------------------------------------------------------------------------
+    #     debug_N = 999999999999
+    #     text_analyzer = TextAnalyzer(do_lower=True, language=language)
+    #     ngram_idf_df = {'value': [], 'value_name': [], 'token': [], 'author': [], 'index_i': [], 'n_gram': []}
+    #     n_gram_df = {'human_ngram': [], 'machine_ngram': [], 'overlap_ngram': [], 'total_ngram': [],
+    #                  'human_overlap_ratio': [], 'human_overlap_token_freq_ratio': [],
+    #                  'machine_overlap_ratio': [], 'machine_overlap_token_freq_ratio': [],
+    #                  'ngram': []}
+    #     zipflaw_df = {'rank': [], 'freq': [], 'token': [], 'author': [], 'n_gram': []}
+    #
+    #     ngram_idf_df_save_path = f'../result/static_data_analysis/{dataset}_ngram_idf.csv'
+    #     ngram_df_save_path = f'../result/static_data_analysis/{dataset}_ngram.csv'
+    #     zipflaw_df_save_path = f'../result/static_data_analysis/{dataset}_zipflaw.csv'
+    #
+    #     n_grams = (1, 2, 3)
+    #     for n_gram in n_grams:
+    #         human_n_gram_freq_dict, human_n_gram_idf_dict = text_analyzer.compute_ngram(human_texts[:debug_N],
+    #                                                                                     n_gram=n_gram)
+    #         machine_n_gram_freq_dict, machine_n_gram_idf_dict = text_analyzer.compute_ngram(machine_texts[:debug_N],
+    #                                                                                         n_gram=n_gram)
+    #
+    #         human_unique_tokens = set(human_n_gram_freq_dict.keys())
+    #         machine_unique_tokens = set(machine_n_gram_freq_dict.keys())
+    #         over_lap_ngram = human_unique_tokens.intersection(machine_unique_tokens)
+    #
+    #         # ---------------------------
+    #         # compute zipflaw
+    #         # ---------------------------
+    #         human_n_gram_freq = sorted(human_n_gram_freq_dict.items(), key=lambda x: x[1], reverse=True)
+    #         machine_n_gram_freq = sorted(machine_n_gram_freq_dict.items(), key=lambda x: x[1], reverse=True)
+    #
+    #         for i, (token, freq) in enumerate(human_n_gram_freq):
+    #             zipflaw_df['rank'].append(i)
+    #             zipflaw_df['freq'].append(math.log(freq))
+    #             zipflaw_df['token'].append(token)
+    #             zipflaw_df['author'].append('human')
+    #             zipflaw_df['n_gram'].append(n_gram)
+    #
+    #         for i, (token, freq) in enumerate(machine_n_gram_freq):
+    #             zipflaw_df['rank'].append(i)
+    #             zipflaw_df['freq'].append(math.log(freq))
+    #             zipflaw_df['token'].append(token)
+    #             zipflaw_df['author'].append('machine')
+    #             zipflaw_df['n_gram'].append(n_gram)
+    #         # ---------------------------
+    #
+    #         over_lap_ngram_for_idf = [(x, human_n_gram_idf_dict[x]) for x in over_lap_ngram]
+    #         over_lap_ngram_for_idf = sorted(over_lap_ngram_for_idf, key=lambda x: x[1])
+    #         for i, (ngram_token, _) in enumerate(over_lap_ngram_for_idf):
+    #             human_idf = human_n_gram_idf_dict[ngram_token]
+    #             machine_idf = machine_n_gram_idf_dict[ngram_token]
+    #             ngram_idf_df['value'].append(human_idf)
+    #             ngram_idf_df['value_name'].append('idf')
+    #             ngram_idf_df['token'].append(ngram_token)
+    #             ngram_idf_df['author'].append('human')
+    #             ngram_idf_df['index_i'].append(i)
+    #             ngram_idf_df['n_gram'].append(n_gram)
+    #
+    #             ngram_idf_df['value'].append(machine_idf)
+    #             ngram_idf_df['value_name'].append('idf')
+    #             ngram_idf_df['token'].append(ngram_token)
+    #             ngram_idf_df['author'].append('machine')
+    #             ngram_idf_df['index_i'].append(i)
+    #             ngram_idf_df['n_gram'].append(n_gram)
+    #
+    #         result_dict = {f'human_{n_gram}_gram_total': len(human_n_gram_freq_dict),
+    #                        f'machine_{n_gram}_gram_total': len(machine_n_gram_freq_dict),
+    #                        f'overlap_{n_gram}_gram': len(over_lap_ngram),
+    #                        f'total_{n_gram}_gram': len(human_unique_tokens.union(machine_unique_tokens))
+    #                        }
+    #         print(result_dict)
+    #
+    #         human_overlap_freq_count = 0
+    #         for token in human_unique_tokens:
+    #             if token in over_lap_ngram:
+    #                 human_overlap_freq_count += human_n_gram_freq_dict[token]
+    #         total_human_freq = np.sum(list(human_n_gram_freq_dict.values()))
+    #
+    #         machine_overlap_freq_count = 0
+    #         for token in machine_unique_tokens:
+    #             if token in over_lap_ngram:
+    #                 machine_overlap_freq_count += machine_n_gram_freq_dict[token]
+    #         total_machine_freq = np.sum(list(machine_n_gram_freq_dict.values()))
+    #         human_overlap_ratio = len(over_lap_ngram) / len(human_n_gram_freq_dict)
+    #         human_overlap_token_freq_ratio = human_overlap_freq_count / total_human_freq
+    #         machine_overlap_ratio = len(over_lap_ngram) / len(machine_n_gram_freq_dict)
+    #         machine_overlap_token_freq_ratio = machine_overlap_freq_count / total_machine_freq
+    #
+    #         # n_gram_df = {'human_ngram': [], 'machine_ngram': [], 'overlap_ngram': [], 'total_ngram': [], 'ngram': []}
+    #         #                      'human_overlap_ratio': [],'human_overlap_token_freq_ratio': [],
+    #         #                      'machine_overlap_ratio': [], 'machine_overlap_token_freq_ratio': [],
+    #         n_gram_df['human_ngram'].append(len(human_n_gram_freq_dict))
+    #         n_gram_df['machine_ngram'].append(len(machine_n_gram_freq_dict))
+    #         n_gram_df['overlap_ngram'].append(len(over_lap_ngram))
+    #         n_gram_df['total_ngram'].append(len(human_unique_tokens.union(machine_unique_tokens)))
+    #         n_gram_df['human_overlap_ratio'].append(human_overlap_ratio)
+    #         n_gram_df['human_overlap_token_freq_ratio'].append(human_overlap_token_freq_ratio)
+    #         n_gram_df['machine_overlap_ratio'].append(machine_overlap_ratio)
+    #         n_gram_df['machine_overlap_token_freq_ratio'].append(machine_overlap_token_freq_ratio)
+    #         n_gram_df['ngram'].append(n_gram)
+    #
+    #         print(f"[Human] Ngram-{n_gram}, overlap ratio / overlap token freq ratio:"
+    #               f" {human_overlap_ratio} / {human_overlap_token_freq_ratio:.3f}")
+    #         print(
+    #             f"[Machine] Ngram-{n_gram}, overlap ratio / overlap token freq ratio:"
+    #             f" {machine_overlap_ratio} / {machine_overlap_token_freq_ratio:.3f}")
+    #
+    #     ngram_idf_df = pd.DataFrame(ngram_idf_df)
+    #     n_gram_df = pd.DataFrame(n_gram_df)
+    #     zipflaw_df = pd.DataFrame(zipflaw_df)
+    #     ngram_idf_df.to_csv(ngram_idf_df_save_path, index=False)
+    #     n_gram_df.to_csv(ngram_df_save_path, index=False)
+    #     zipflaw_df.to_csv(zipflaw_df_save_path, index=False)
+    #     print(f"Save ngram idf df to {ngram_idf_df}")
+    #     print(f"Save ngram df to {ngram_df_save_path}")
+    #     print(f"Save zipflaw_df to {zipflaw_df_save_path}")
+    #
+    # # --------------------------------------------------------------------------------------------------------------
 
     # data_analyze_df = pd.DataFrame(data_analyze_df)
     # print(data_analyze_df)
