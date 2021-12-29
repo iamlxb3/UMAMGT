@@ -56,13 +56,22 @@ class TextAnalyzer:
                 if self.do_lower:
                     text = text.lower()
                 sen_ngrams = compute_ngrams(text.split(), n_gram)
-                sen_ngrams = [''.join(x) for x in sen_ngrams]
+                if self.language == 'cn':
+                    sen_ngrams = [''.join(x) for x in sen_ngrams]
+                elif self.language == 'en':
+                    sen_ngrams = [' '.join(x) for x in sen_ngrams]
+                else:
+                    raise NotImplementedError
+
                 try:
-                    distinct_value.append(len(set(sen_ngrams)) / len(sen_ngrams))
-                    # distinct_value.append(len(set(sen_ngrams)) / len(text.split()))
+                    # distinct_value.append(len(set(sen_ngrams)) / len(sen_ngrams))
+                    distinct_value.append(len(set(sen_ngrams)) / len(text.split()))
                 except ZeroDivisionError:
                     print('ZeroDivisionError!')
                     continue
+                # if n_gram == 2 and self.language == 'en':
+                #     print(f"distinct_value: {distinct_value}")
+                #     ipdb.set_trace()
             avg_distinct_value = np.average(distinct_value)
             result.append((n_gram, avg_distinct_value))
         return result
@@ -84,8 +93,14 @@ class TextAnalyzer:
         n_gram_idf_dict = {k: math.log(len(texts) / v) for k, v in n_gram_idf_dict.items()}
         return n_gram_freq_dict, n_gram_idf_dict
 
-    def analyse_concreteness(self, texts):
-        concreteness = pd.read_csv('../static/Concreteness_ratings_Brysbaert_et_al_BRM.csv')
+    def analyse_concreteness(self, texts, language):
+        if language == 'en':
+            concreteness = pd.read_csv('../static/Concreteness_ratings_Brysbaert_et_al_BRM.csv')
+        elif language == 'cn':
+            concreteness = pd.read_csv('../static/Concreteness_ratings_cn_bigrams.csv')
+        else:
+            raise NotImplementedError
+
         words_concreteness = dict(zip(concreteness['Word'].values, concreteness['Conc.M'].values))
 
         target_pos = ('VERB', 'NOUN', 'ADV', 'ADJ')
@@ -116,8 +131,25 @@ class TextAnalyzer:
 
             for pos_tag, token in zip(pos_tags, tokens):
                 if pos_tag in target_pos:
-                    if token in words_concreteness:
-                        concreteness_tmp_dict[pos_tag].append(words_concreteness[token])
+
+                    if language == 'en':
+                        if token in words_concreteness:
+                            concreteness_tmp_dict[pos_tag].append(words_concreteness[token])
+                    elif language == 'cn':
+                        token_list = list(token)
+                        concreteness = 0.0
+                        if len(token_list) < 2:
+                            pass
+                        elif len(token_list) == 2:
+                            concreteness += words_concreteness.get(''.join(token_list), 0.0)
+                        else:
+                            bigram_token = list(compute_ngrams(token_list, 2))
+                            for bigram in bigram_token:
+                                concreteness += words_concreteness.get(''.join(bigram), 0.0)
+                        if concreteness > 0.0:
+                            concreteness_tmp_dict[pos_tag].append(concreteness)
+                    else:
+                        raise NotImplementedError
 
             concreteness_tmp_dict = {k: np.average(v) for k, v in concreteness_tmp_dict.items()}
             for pos in target_pos:
