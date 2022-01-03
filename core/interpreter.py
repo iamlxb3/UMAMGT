@@ -110,12 +110,14 @@ class StoryInterpreter:
                                                                      target=all_1_labels,
                                                                      baselines=all_pad_embedding,
                                                                      n_steps=self.n_steps,
-                                                                     return_convergence_delta=True)
+                                                                     return_convergence_delta=True,
+                                                                     internal_batch_size=32)
         else:
             label1_attributions_ig, label1_delta = self.ig.attribute(inputs=input_embedding,
                                                                      target=all_1_labels,
                                                                      n_steps=self.n_steps,
-                                                                     return_convergence_delta=True)
+                                                                     return_convergence_delta=True,
+                                                                     internal_batch_size=32)
         label1_attributions_ig = label1_attributions_ig.detach().cpu()
         label1_delta = label1_delta.detach().cpu()
         # print("label1_delta: ", label1_delta)

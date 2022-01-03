@@ -27,3 +27,11 @@ bash run_story_interpret.sh 0 8 512
 ```
 
 Grover模型：https://github.com/rowanz/grover
+
+从danlu向ubuntu传文件
+scp -P 19657 -C -i /home/iamlxb3/.ssh/pujiashu_rsa  root@ai.danlu.netease.com:"/root/story_turing_test/result/*.csv" .
+
+从ubuntu向danlu传文件
+rsync -avh --exclude='.git/' -e "ssh -p 19657 -i ~/.ssh/pujiashu_rsa" /home/iamlxb3/temp_rsync_dir/story_turing_test/model_ckpts/interpret_cn_novel_5billion_cn_roberta_debug_0/ root@ai.danlu.netease.com:/root/story_turing_test/model_ckpts/interpret_cn_novel_5billion_cn_roberta_debug_0/
+rsync -avh --exclude='.git/' -e "ssh -p 19657 -i ~/.ssh/pujiashu_rsa" /home/iamlxb3/temp_rsync_dir/story_turing_test/model_ckpts/interpret_en_grover_en_roberta_debug_0/ root@ai.danlu.netease.com:/root/story_turing_test/model_ckpts/interpret_en_grover_en_roberta_debug_0/
+rsync -avh --exclude='.git/' -e "ssh -p 19657 -i ~/.ssh/pujiashu_rsa" /home/iamlxb3/temp_rsync_dir/story_turing_test/model_ckpts/interpret_en_writing_prompt_en_roberta_debug_0/ root@ai.danlu.netease.com:/root/story_turing_test/model_ckpts/interpret_en_writing_prompt_en_roberta_debug_0/

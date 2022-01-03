@@ -10,18 +10,18 @@
 
 
 # Grover
-# bash train_on_en.sh 'en_grover' '400 800 1600 0' 1 0 0 15 1 'None'
-# bash train_on_en.sh 'en_grover' '400 800 1600 0' 1 0 1 15 1 'None' # NON PRETRAIN
-# bash train_on_en.sh 'en_grover' '16 256 1024 0' 1 0 0 15 1 'reorder_shuffle char_deduplicate'
-# bash train_on_en.sh 'en_grover' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_low2high'
-# bash train_on_en.sh 'en_grover' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_high2low'
+# bash train_on_en.sh 'en_grover' '400 800 1600 3200 6400 12800 0' 1 0 0 15 1 'None'
+# bash train_on_en.sh 'en_grover' '400 800 1600 3200 6400 12800 0' 1 0 0 15 1 'char_deduplicate'
+# bash train_on_en.sh 'en_grover' '400 800 1600 3200 6400 12800 0' 1 0 0 15 1 'reorder_shuffle'
+# bash train_on_en.sh 'en_grover' '400 800 1600 3200 6400 12800 0' 1 0 0 15 1 'reorder_shuffle char_deduplicate'
+# bash train_on_en.sh 'en_grover' '400 800 1600 3200 6400 12800 0' 1 0 0 15 1 'likelihood_rank'
+
 
 # en_writing_prompt
-# bash train_on_en.sh 'en_writing_prompt' '20 40 80 160 0' 1 0 0 15 1 'None'
-# bash train_on_en.sh 'en_writing_prompt' '20 40 80 160 0' 1 0 1 15 1 'None' # NON PRETRAIN
-# bash train_on_en.sh 'en_writing_prompt' '16 256 1024 0' 1 0 0 15 1 'reorder_shuffle char_deduplicate'
-# bash train_on_en.sh 'en_writing_prompt' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_low2high'  # a8c02b65
-# bash train_on_en.sh 'en_writing_prompt' '16 256 1024 0' 1 0 0 15 1 'reorder_freq_high2low'
+# bash train_on_en.sh 'en_writing_prompt' '10 20 40 80 160 320 0' 1 0 0 15 1 'None'
+# bash train_on_en.sh 'en_writing_prompt' '10 20 40 80 160 320 0' 1 0 0 15 1 'char_deduplicate'
+# bash train_on_en.sh 'en_writing_prompt' '10 20 40 80 160 320 0' 1 0 0 15 1 'reorder_shuffle'
+# bash train_on_en.sh 'en_writing_prompt' '10 20 40 80 160 320 0' 1 0 0 15 1 'reorder_shuffle char_deduplicate'
 
 dataset_name=${1:-0}
 is_debug=${2:-0}

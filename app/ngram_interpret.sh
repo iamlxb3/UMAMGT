@@ -1,0 +1,11 @@
+# bash ngram_interpret.sh
+
+set -e
+
+python ngram_interpret.py --path ../result/interpret/interpret_cn_novel_5billion_cn_roberta_debug_0_text_len_128_debug_N_10000_use_all_zero_bs_token_attr.csv
+python ngram_interpret.py --path ../result/interpret/interpret_cn_novel_5billion_cn_roberta_debug_0_text_len_128_debug_N_10000_use_pad_bs_token_attr.csv
+python ngram_interpret.py --path ../result/interpret/interpret_en_grover_en_roberta_debug_0_text_len_256_debug_N_10000_use_all_zero_bs_token_attr.csv
+python ngram_interpret.py --path ../result/interpret/interpret_en_grover_en_roberta_debug_0_text_len_256_debug_N_10000_use_pad_bs_token_attr.csv
+python ngram_interpret.py --path ../result/interpret/interpret_en_writing_prompt_en_roberta_debug_0_text_len_128_debug_N_10000_use_all_zero_bs_token_attr.csv
+python ngram_interpret.py --path ../result/interpret/interpret_en_writing_prompt_en_roberta_debug_0_text_len_128_debug_N_10000_use_pad_bs_token_attr.csv
+

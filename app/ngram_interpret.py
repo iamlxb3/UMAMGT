@@ -115,6 +115,9 @@ def compute_per_sentence_attr_score(target_df, class_pos, ngram, save_path, lang
 
 
 # python ngram_interpret.py --path '../result/interpret/interpret_cn_novel_5billion_cn_roberta_debug_0_text_len_128_debug_N_10000_use_all_zero_bs_token_attr.csv'
+# python ngram_interpret.py --path '../result/interpret/interpret_cn_novel_5billion_cn_roberta_debug_0_text_len_128_debug_N_10000_use_all_zero_bs_token_attr.csv'
+# python ngram_interpret.py --path '../result/interpret/interpret_cn_novel_5billion_cn_roberta_debug_0_text_len_128_debug_N_10000_use_all_zero_bs_token_attr.csv'
+
 # python ngram_interpret.py --path '../result/interpret/interpret_en_grover_en_roberta_debug_0_text_len_256_debug_N_800_use_pad_bs_token_attr.csv'
 # python ngram_interpret.py --path '../result/interpret/interpret_en_writing_prompt_en_roberta_debug_0_text_len_128_debug_N_800_use_pad_bs_token_attr.csv'
 # python ngram_interpret.py --path '../result/interpret/interpret_en_grover_en_roberta_debug_0_text_len_256_debug_N_10000_use_all_zero_bs_token_attr.csv'
@@ -128,7 +131,7 @@ def main():
     language = basename.split('_')[1]
 
     df = pd.read_csv(path)
-    ngrams = [1, 2, 3, 4, 5, 6]
+    ngrams = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
     # ngrams = [1, 2, 3, 4, 5, 6]
 
     # token_freq_dict = collections.Counter(df['token'].values)
