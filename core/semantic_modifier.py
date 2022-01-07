@@ -18,9 +18,19 @@ import string
 
 _PUNCTUATIONS = set(list(string.punctuation) + ['。', '，', '；', '：', '！', '？'])
 
+"""
+TAG_LIST = [".",",","-LRB-","-RRB-","``","\"\"","''",",","$","#","AFX","CC","CD","DT","EX","FW","HYPH","IN","JJ","JJR","JJS","LS","MD","NIL","NN","NNP","NNPS","NNS","PDT","POS","PRP","PRP$","RB","RBR","RBS","RP","SP","SYM","TO","UH","VB","VBD","VBG","VBN","VBP","VBZ","WDT","WP","WP$","WRB","ADD","NFP","GW","XX","BES","HVS","_SP"]
+POS_LIST = ["ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "SPACE"]
+DEP_LIST = ["acl", "acomp", "advcl", "advmod", "agent", "amod", "appos", "attr", "aux", "auxpass", "case", "cc", "ccomp", "compound", "conj", "cop", "csubj", "csubjpass", "dative", "dep", "det", "dobj", "expl", "intj", "mark", "meta", "neg", "nn", "npmod", "nsubj", "nsubjpass", "oprd", "obj", "obl", "pcomp", "pobj", "poss", "preconj", "prep", "prt", "punct",  "quantmod", "relcl", "root", "xcomp"]
+NER_LIST = ["PERSON", "NORP", "FAC", "ORG", "GPE", "LOC", "PRODUCT", "EVENT", "WORK_OF_ART", "LAW", "LANGUAGE", "DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", "CARDINAL"]
+"""
+
 
 class SemanticModifier:
     def __init__(self, semantic_change, language, char_freq_rank=None):
+        # len(self.spacy_parser.get_pipe("benepar")._label_vocab)
+        # self.spacy_parser.get_pipe("parser").labels
+        #
         self.semantic_change = semantic_change
         self.char_freq_rank = char_freq_rank
         self.language = language
@@ -63,6 +73,8 @@ class SemanticModifier:
                         self.stopwords.add(line)
         else:
             self.stopwords = None
+
+        ipdb.set_trace()
 
     def rm_chars_out_freq(self, texts, char_freq_range):
         processed_texts = []

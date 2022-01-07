@@ -20,6 +20,7 @@ bash train_on_cn_novel_char_deduplicate.sh            '16 32 64 128 256 512 0' 1
 #bash train_on_cn_novel_reorder_freq_high2low.sh       '16 32 64 128 256 512 0' 1 0 1 15
 #bash train_on_cn_novel_reorder_freq_low2high.sh       '16 32 64 128 256 512 0' 1 0 1 15
 bash train_on_cn_novel_reorder_shuffle+deduplicate.sh '16 32 64 128 256 512 0' 1 0 1 15
+bash train_on_cn_novel_likelihood_rank.sh             '16 32 64 128 256 512 0' 1 0 1 15
 
 
 #char_freq_ranges=${1:-0}
