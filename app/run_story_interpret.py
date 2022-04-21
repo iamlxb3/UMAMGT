@@ -1,6 +1,4 @@
-import ipdb
 import sys
-import random
 import argparse
 import ntpath
 
@@ -14,8 +12,6 @@ from pytorch_lightning import seed_everything
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 
-
-# python run_story_interpret.py --debug_N 100 --batch_size 16
 
 def args_parse():
     parser = argparse.ArgumentParser(description='description')
@@ -79,10 +75,6 @@ def main():
                                    use_pad_baseline=use_pad_baseline
                                    )
 
-    # sentences = ['测试1。阿斯顿撒大', '测试2，阿斯顿撒大', '测试3，阿斯顿撒大']
-    # labels = [1, 1, 0]
-    # interpreter.interpret_sentence(sentences, labels, n_steps=200, correct_label_only=True)
-
     # load test data
     story_turing_test = StoryTuringTest(tokenizer, dataset_name)
     whole_texts, whole_labels = story_turing_test.read_cn_novel_whole_data(data_dir, ['None'])
@@ -93,7 +85,6 @@ def main():
                             batch_size=batch_size,
                             num_workers=0)
     interpreter.interpret_dataloder(dataloader)
-    # ipdb.set_trace()
 
 
 if __name__ == '__main__':

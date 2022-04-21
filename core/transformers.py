@@ -1,5 +1,3 @@
-import ipdb
-import copy
 import torch
 import torch.nn as nn
 
@@ -57,7 +55,6 @@ def compute_bert_outputs(model_bert, embedding_output, attention_mask, model_nam
     sequence_output = encoder_outputs[0]
 
     if model_name == 'bert':
-        # 这里和roberta的classification head是冲突的, classification head里面已经包含pooler了
         pooled_output = model_bert.pooler(sequence_output)
     else:
         pooled_output = None
@@ -88,15 +85,6 @@ class BertModelWrapper(nn.Module):
             encoder_output = outputs[1]
         else:
             encoder_output = outputs[0]
-
-        # encoded_inputs.pop('labels')
-        # embedding_input = copy.deepcopy(encoded_inputs)
-        # embedding_input.pop('attention_mask')
-        # embedding_output = self.model.bert.embeddings(**embedding_input)
-        # origin_encoder_output = self.model.bert(**encoded_inputs)[0]
-        # origin_pooled_output = self.model.bert(**encoded_inputs)[1]
-        #
-
         logits = self.classifier_head(encoder_output)
 
         return torch.softmax(logits, dim=1)

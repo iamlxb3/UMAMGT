@@ -1,15 +1,12 @@
 import os
-import ipdb
 import torch
 import pickle
 import pandas as pd
-import ntpath
 import numpy as np
 
 from tqdm import tqdm
 from captum.attr import IntegratedGradients
 from captum.attr import visualization
-from captum.attr import LayerIntegratedGradients, TokenReferenceBase
 
 
 def compute_attributions(attributions):
@@ -102,10 +99,8 @@ class StoryInterpreter:
         # attributions_ig shape: batch x max_seq_len x 768
         # print(f"Start computing attribution...")
         all_1_labels = torch.tensor([1 for _ in predict_labels]).to(self.device)
-        # baselines=all_pad_embedding,
 
         if self.use_pad_baseline:
-            # TODO: 这里目前的batch_size还是设定为1比较稳妥，因为attention_mask的存在，当时batch_size不同时计算出来的值略有不同
             label1_attributions_ig, label1_delta = self.ig.attribute(inputs=input_embedding,
                                                                      target=all_1_labels,
                                                                      baselines=all_pad_embedding,
@@ -145,8 +140,7 @@ class StoryInterpreter:
                     predict_prob = predict_probs[i][pred_ind]
                     # label1_attributions_ig[i]: len(tokens) x 768
 
-                    # 这里的attribution是做过normalize，但是，不是做的softmax，所以sum加起来不是1
-                    # TODO: 需要思考下这里的attribution score和长度有没有关系
+                    # attrituion is normalized, but not softmax normalized, so the sum of all dimension will not be 1
                     label1_attribution_sum = compute_attributions(label1_attribution)
 
                     delta = label1_delta[i]

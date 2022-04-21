@@ -79,11 +79,6 @@ class StoryTuringTest:
 
     def create_dataset(self, texts, labels, max_length=512):
         text_encodings = self.tokenizer(list(texts), truncation=True, padding=True, max_length=max_length)
-        # self.tokenizer.tokenize(texts[0])
-        # 这里用add_tokens无效，可能需要把词表里带#号的都删除才行
-        # self.tokenizer.tokenize('NOUN PART VERB PART')
-        # ['no', '##un', 'part', 'ver', '##b', 'part']
-        # create dataset
         dataset = StoryTuringTestData(text_encodings, labels)
         return dataset
 
@@ -103,7 +98,6 @@ class StoryTuringTest:
         train_label_path = os.path.join(data_dir, 'train.label')
 
         train_texts, train_labels = self._read_text_label(train_data_path, train_label_path)
-        # train_texts_lens = [len(x.split()) for x in train_texts]
 
         if debug_N is not None:
             train_texts, train_labels = train_texts[:debug_N], train_labels[:debug_N]
@@ -111,8 +105,6 @@ class StoryTuringTest:
         # split train/val
         train_texts, val_texts, train_labels, val_labels = train_test_split(train_texts, train_labels,
                                                                             test_size=val_ratio)
-
-        # dict_keys(['input_ids', 'token_type_ids', 'attention_mask'])
 
         val_encodings = self.tokenizer(val_texts, truncation=True, padding=True)
         train_encodings = self.tokenizer(train_texts, truncation=True, padding=True)

@@ -1,36 +1,21 @@
 import os
 import ipdb
-import copy
 import random
 import numpy as np
-import glob
 import jieba
 import re
 import spacy
 from tqdm import tqdm
-# import pickle
 import _pickle as pickle
 import hashlib
 import benepar
 import string
 
-# import nltk
-
 _PUNCTUATIONS = set(list(string.punctuation) + ['。', '，', '；', '：', '！', '？'])
-
-"""
-TAG_LIST = [".",",","-LRB-","-RRB-","``","\"\"","''",",","$","#","AFX","CC","CD","DT","EX","FW","HYPH","IN","JJ","JJR","JJS","LS","MD","NIL","NN","NNP","NNPS","NNS","PDT","POS","PRP","PRP$","RB","RBR","RBS","RP","SP","SYM","TO","UH","VB","VBD","VBG","VBN","VBP","VBZ","WDT","WP","WP$","WRB","ADD","NFP","GW","XX","BES","HVS","_SP"]
-POS_LIST = ["ADJ", "ADP", "ADV", "AUX", "CONJ", "CCONJ", "DET", "INTJ", "NOUN", "NUM", "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X", "SPACE"]
-DEP_LIST = ["acl", "acomp", "advcl", "advmod", "agent", "amod", "appos", "attr", "aux", "auxpass", "case", "cc", "ccomp", "compound", "conj", "cop", "csubj", "csubjpass", "dative", "dep", "det", "dobj", "expl", "intj", "mark", "meta", "neg", "nn", "npmod", "nsubj", "nsubjpass", "oprd", "obj", "obl", "pcomp", "pobj", "poss", "preconj", "prep", "prt", "punct",  "quantmod", "relcl", "root", "xcomp"]
-NER_LIST = ["PERSON", "NORP", "FAC", "ORG", "GPE", "LOC", "PRODUCT", "EVENT", "WORK_OF_ART", "LAW", "LANGUAGE", "DATE", "TIME", "PERCENT", "MONEY", "QUANTITY", "ORDINAL", "CARDINAL"]
-"""
 
 
 class SemanticModifier:
     def __init__(self, semantic_change, language, char_freq_rank=None):
-        # len(self.spacy_parser.get_pipe("benepar")._label_vocab)
-        # self.spacy_parser.get_pipe("parser").labels
-        #
         self.semantic_change = semantic_change
         self.char_freq_rank = char_freq_rank
         self.language = language
@@ -74,8 +59,6 @@ class SemanticModifier:
         else:
             self.stopwords = None
 
-        ipdb.set_trace()
-
     def rm_chars_out_freq(self, texts, char_freq_range):
         processed_texts = []
         for text in texts:
@@ -107,10 +90,9 @@ class SemanticModifier:
     def change_texts(self, texts, char_freq_range):
         processed_texts = []
 
-        # TODO: '</s>' 后面后一个空格, split(' ') 之后会出现一个''，暂时没有处理
         for text in tqdm(texts, total=len(texts)):
 
-            # 这里其实是char在词表里的rank
+            # The rank of char(token) in vocabulary
             if char_freq_range != 0:
 
                 if 'likelihood_rank' in self.semantic_change:
@@ -118,7 +100,7 @@ class SemanticModifier:
                     min_len = min(len(origin_text.split()), len(text_rank.split()))
                     origin_text_split = origin_text.split()[:min_len]
                     text_rank_split = text_rank.split()[:min_len]
-                    # TODO: 这两个的长度当时没控制好
+
                     split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in origin_text_split]
                     masked_text = [x if freq < char_freq_range else '[MASK]' for (x, freq) in split_text_order]
                     mask_indices = np.where(np.array(masked_text) == '[MASK]')[0]
@@ -139,13 +121,11 @@ class SemanticModifier:
             if 'reorder_shuffle' in self.semantic_change:
                 random.shuffle(split_text)
 
-            # 从高频词到低频词
             elif 'reorder_freq_high2low' in self.semantic_change:
                 split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
                 split_text = sorted(split_text_order, key=lambda x: x[1])
                 split_text = [x[0] for x in split_text]
 
-            # 从低频词到高频词
             elif 'reorder_freq_low2high' in self.semantic_change:
                 split_text_order = [(x, self.char_freq_rank.get(x, self.max_freq)) for x in split_text]
                 split_text = sorted(split_text_order, key=lambda x: x[1], reverse=True)
@@ -191,8 +171,6 @@ class SemanticModifier:
                     'dep' in self.semantic_change or \
                     'constit' in self.semantic_change or \
                     'ner' in self.semantic_change:
-                # from spacy.lang.zh.examples import sentences
-                # example_sentence = sentences[0]
                 if self.language == 'cn':
                     to_parse_text = str(text.replace(' ', ''))
                 else:
@@ -205,7 +183,6 @@ class SemanticModifier:
                 if text_md5 in self.spacy_results:
                     split_text = self.spacy_results[text_md5]
                     assert isinstance(split_text, str)
-                    # print(split_text)
                     processed_texts.append(split_text)
                     continue
                 else:
@@ -277,9 +254,7 @@ class SemanticModifier:
                     split_text = new_text
                     self.spacy_results[text_md5] = split_text
                     pickle.dump(split_text, open(text_pickle_path, 'wb'))
-                    # 这个pos/dep tag的数量和原本中文的数量是对不上的，因为会对中文做分词，所以会短一点
                     assert isinstance(split_text, str)
-                    # print(split_text)
                     processed_texts.append(split_text)
             else:
                 processed_texts.append(' '.join(split_text))

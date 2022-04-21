@@ -1,16 +1,13 @@
 import os
 import sys
-import ipdb
 import random
 import shutil
-import ntpath
 import numpy as np
 import argparse
 
 sys.path.append('..')
 
 from core.task import StoryTuringTest
-from core.utils import load_save_json
 from core.exp_record import ExpRecorderFreqGap
 from core.semantic_modifier import SemanticModifier
 from exp_config import TRAIN_CONFIG, TRAIN_DEBUG_CONFIG, SYSTEM_CONFIG, SEED_OFFSET, TEST_PERCENT, VAL_PERCENT, \
@@ -22,14 +19,6 @@ from transformers import Trainer, TrainingArguments
 from sklearn.metrics import accuracy_score, recall_score, precision_score, f1_score
 from pytorch_lightning import seed_everything
 
-
-# python3.6 train_roberta.py --epoch 1 --debug_N 100
-# python3.6 train_roberta.py --epoch 20 --per_device_train_batch_size 32 --gradient_accumulation_steps 4
-
-# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort
-# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort_no_reverse
-# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_sort_unique_no_reverse
-# python3.6 train_roberta.py --epoch 10 --per_device_train_batch_size 32 --gradient_accumulation_steps 4 --data_dir ../data/5billion_shuffle_unique_no_reverse
 
 def compute_metrics(eval_predict):
     predict_prob, labels = eval_predict
@@ -54,7 +43,8 @@ def args_parse():
     parser.add_argument('--repeat', type=int, default=1, help='repeat with random seads')
     parser.add_argument('--semantic_change',
                         type=str,
-                        required=True)
+                        required=True,
+                        choices=['rm_chars_in_freq', 'rm_chars_out_freq'])
     args = parser.parse_args()
     return args
 
@@ -246,19 +236,6 @@ def main():
     # save path
     save_path = os.path.join(save_dir, f'freq_gap_{dataset_name}_{classifier_name}_{semantic_change_str}.csv')
     exp_recorder.save_to_disk(save_path)
-
-    # # Save model
-    # dataset_name = ntpath.basename(data_dir)
-    # if model_save_dir is None:
-    #     model_save_dir = f"../model_ckpts/cn-roberta-story-turning-train_{train_size}-seq_{seq_len}_{dataset_name}"
-    # model_save_dir = os.path.abspath(model_save_dir)
-    # model.save_pretrained(model_save_dir)
-    # print(f"Save best model ckpt to {model_save_dir}")
-    #
-    # train_result_save_path = os.path.join(model_save_dir, 'train_result.json')
-    # test_result_save_path = os.path.join(model_save_dir, 'test_result.json')
-    # load_save_json(train_result_save_path, 'save', data=train_result)
-    # load_save_json(test_result_save_path, 'save', data=test_result)
 
 
 if __name__ == '__main__':

@@ -4,6 +4,8 @@ data/*
 model_ckpts/
 pretrain_models/
 fake_news_data/
+other/
+latex/
 
 # Compiled source #
 ###################

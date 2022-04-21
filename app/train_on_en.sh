@@ -1,7 +1,3 @@
-# bash train_on_en.sh en_grover '0' 1 1 0 1 1 'char_deduplicate'
-# bash train_on_en.sh en_grover '0' 1 1 0 1 1 'use_stopword'
-# bash train_on_en.sh en_grover '0' 1 0 0 1 1
-
 dataset_name=${1:-0}
 char_freq_ranges=${2:-0}
 is_change_apply_to_test=${3:-1}

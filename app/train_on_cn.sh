@@ -1,7 +1,3 @@
-# debug-[pretrain]-[repeat1]:
-# bash train_on_cn.sh cn_novel_5billion '0' 1 1 0 1 1 'not_use_stopword'
-# bash train_on_cn.sh cn_novel_5billion '0' 1 0 0 1 1
-
 dataset_name=${1:-0}
 char_freq_ranges=${2:-0}
 is_change_apply_to_test=${3:-1}

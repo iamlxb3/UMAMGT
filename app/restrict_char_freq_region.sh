@@ -1,8 +1,3 @@
-
-# Debug
-# bash train_on_cn_novel_freq_gaps.sh '128 256 512' 1 1 'rm_chars_in_freq'
-# bash train_on_cn_novel_freq_gaps.sh '128 256 512' 1 1 'rm_chars_out_freq'
-
 char_freq_ranges=${1:-0}
 is_debug=${2:-0}
 repeat=${3:-1}
@@ -14,7 +9,7 @@ data_dir=../data/$dataset_name
 save_dir=../result/
 char_freq_txt_path=../data/$dataset_name/sort_char.txt
 
-python3.6 train_cn_roberta_freq_gap.py --classifier_name $classifier_name \
+python3.6 restrict_char_freq_region.py --classifier_name $classifier_name \
                                        --dataset_name $dataset_name \
                                        --data_dir $data_dir \
                                        --save_dir $save_dir \

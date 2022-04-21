@@ -64,14 +64,10 @@ class TextAnalyzer:
                     raise NotImplementedError
 
                 try:
-                    # distinct_value.append(len(set(sen_ngrams)) / len(sen_ngrams))
                     distinct_value.append(len(set(sen_ngrams)) / len(text.split()))
                 except ZeroDivisionError:
                     print('ZeroDivisionError!')
                     continue
-                # if n_gram == 2 and self.language == 'en':
-                #     print(f"distinct_value: {distinct_value}")
-                #     ipdb.set_trace()
             avg_distinct_value = np.average(distinct_value)
             result.append((n_gram, avg_distinct_value))
         return result

@@ -1,11 +1,3 @@
-# bash run_story_interpret.sh 100
-# bash run_story_interpret.sh 100 1 20 cn_novel_5billion cn_novel_5billion_cn_roberta_debug_0 bert
-# bash run_story_interpret.sh 100 1 20 en_grover interpret_en_grover_en_roberta_debug_1 roberta
-# bash run_story_interpret.sh 50 1 256 en_grover interpret_en_grover_en_roberta_debug_1 roberta 50
-
-# bash run_story_interpret.sh 500 1 512
-# bash run_story_interpret.sh 0 4 512
-
 debug_N=${1:-0}
 batch_size=${2:-1}
 max_text_length=${3:-512}
