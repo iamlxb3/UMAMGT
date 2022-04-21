@@ -82,6 +82,9 @@ Arguments for ```run_story_interpret.sh```:
 - ig_n_steps: The number of steps used by the approximation method for Integrated Gradients.
 - use_pad_baseline: Bool value. 1: use all [PAD] baseline for Integrated Gradients. 0: Use all zero baseline.
 
+#### Other
+
+- To create result figures, you may refer to notebooks in result/vis
 ---
 ### License:
 Our code is under Apache License 2.0.
