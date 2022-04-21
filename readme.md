@@ -83,7 +83,7 @@ Arguments for ```run_story_interpret.sh```:
 - use_pad_baseline: Bool value. 1: use all [PAD] baseline for Integrated Gradients. 0: Use all zero baseline.
 
 ### License:
-Our code is under the MIT License.
+Our code is under Apache License 2.0.
 
 ### Cite our paper
 If you found our paper/code useful, please cite:
