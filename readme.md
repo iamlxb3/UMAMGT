@@ -1,9 +1,6 @@
 # Unraveling the Mystery of Artifacts in Machine Generated Texts
 This paper has been accpected to LREC'22. Paper link: 
 
-### Video Presentation
-Presenter: JiaShu Pu
-
 ### Install
 ```
 conda create --name myenv python==3.6.8
