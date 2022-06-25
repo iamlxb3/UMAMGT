@@ -1,5 +1,6 @@
 # Unraveling the Mystery of Artifacts in Machine Generated Texts
 This paper has been accpected to LREC'22. Paper link: 
+http://lrec-conf.org/proceedings/lrec2022/pdf/2022.lrec-1.744.pdf
 
 ### Install
 ```
