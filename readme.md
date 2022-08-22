@@ -89,4 +89,17 @@ Our code is under Apache License 2.0.
 
 ### Cite our paper
 If you found our paper/code useful, please cite:
-
+```
+@InProceedings{pu-EtAl:2022:LREC,
+  author    = {Pu, Jiashu  and  Huang, Ziyi  and  Xi, Yadong  and  Chen, Guandan  and  Chen, Weijie  and  Zhang, Rongsheng},
+  title     = {Unraveling the Mystery of Artifacts in Machine Generated Text},
+  booktitle      = {Proceedings of the Language Resources and Evaluation Conference},
+  month          = {June},
+  year           = {2022},
+  address        = {Marseille, France},
+  publisher      = {European Language Resources Association},
+  pages     = {6889--6898},
+  abstract  = {As neural Text Generation Models (TGM) have become more and more capable of generating text indistinguishable from human-written ones, the misuse of text generation technologies can have serious ramifications. Although a neural classifier often achieves high detection accuracy, the reason for it is not well studied. Most previous work revolves around studying the impact of model structure and the decoding strategy on ease of detection, but little work has been done to analyze the forms of artifacts left by the TGM. We propose to systematically study the forms and scopes of artifacts by corrupting texts, replacing them with linguistic or statistical features, and applying the interpretable method of Integrated Gradients. Comprehensive experiments show artifacts a) primarily relate to token co-occurrence, b) feature more heavily at the head of vocabulary, c) appear more in content word than stopwords, d) are sometimes detrimental in the form of number of token occurrences, e) are less likely to exist in high-level semantics or syntaxes, f) manifest in low concreteness values for higher-order n-grams.},
+  url       = {https://aclanthology.org/2022.lrec-1.744}
+}
+```
